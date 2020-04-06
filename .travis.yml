@@ -1,43 +1,42 @@
 language: node_js
 
 node_js:
-  - lts/*
-  - node
+- lts/*
+- node
 
 services:
-  - docker
+- docker
 
 env:
   global:
-    - NODE_DOWNLOAD_URL=https://nodejs.org/dist/v12.16.1/node-v12.16.1-win-x64.zip
-    - NSIS_IMAGE=cs8898/nsis:latest
+  - NODE_DOWNLOAD_URL=https://nodejs.org/dist/v12.16.1/node-v12.16.1-win-x64.zip
+  - NSIS_IMAGE=cs8898/nsis:latest
 
 script:
-  - yarn install
-  - yarn build
-  - mkdir -p ./dist_install/bin
-  - cp -r ./dist ./dist_install/bin && cp -r ./node_modules ./dist_install/bin &&
-    cp ./package.json ./dist_install/bin &&
-    cp ./src/favicon.ico ./dist_install/bin
-  - mkdir -p node_download && wget $NODE_DOWNLOAD_URL -O ./node_download/node_rel.zip
-    && cd ./node_download && unzip node_rel.zip && cd $TRAVIS_BUILD_DIR
-  - cp ./node_download/node-*/node.exe ./dist_install/bin
-  - docker run --rm -i -v $PWD:/tmp/build -u $(id -u $USER):$(id -g $USER) $NSIS_IMAGE
-    /tmp/build/nsis/nsis.nsi
+- yarn install
+- yarn build
+- mkdir -p ./dist_install/bin
+- cp -r ./dist ./dist_install/bin && cp -r ./node_modules ./dist_install/bin && cp
+  ./package.json ./dist_install/bin && cp ./src/favicon.ico ./dist_install/bin
+- mkdir -p node_download && wget $NODE_DOWNLOAD_URL -O ./node_download/node_rel.zip
+  && cd ./node_download && unzip node_rel.zip && cd $TRAVIS_BUILD_DIR
+- cp ./node_download/node-*/node.exe ./dist_install/bin
+- docker run --rm -i -v $PWD:/tmp/build -u $(id -u $USER):$(id -g $USER) $NSIS_IMAGE
+  /tmp/build/nsis/nsis.nsi
 
 before_deploy:
-  - git config --local user.name "Travis CI"
-  - git config --local user.email "build@travis-ci.org"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG
+- git config --local user.name "Travis CI"
+- git config --local user.email "build@travis-ci.org"
+- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+- git tag $TRAVIS_TAG
 
-#deploy:
-#  provider: releases
-#  api_key:
-#    secure: CNvA4E6HBeWhmJYMKODB+qC/HmjOoFYFbUq8kHIlJj+scJFtmSeMQZb/I1MgCC1Hd2j9mDr7eJR4c8ezOeLCof8frLm/FPIHpxco+mWKCXtwFQQwKXVIqEFSPrIWA09WvWg6sWCtqcCjknozsgUVW1g6wBQoAnMsQDgOsu3pPtunLim7uMfIoyDYPyHDMziYY1lX3BfRpRmIYDK/gyzjF7MdrWuytv7c82Xt0lPK6mBtgk6Pq81qP3ciR9JXivixWSYp/KlYEFwNH84o6366Cv+AG4/Icq+2n2gx5/g3ZMUO7sbhkcqH25J46UUSA2Y5dzC1O3aQ0LSf86ukPf993xZgrRe/T006DrTe63FioZzZR2648A9msE492rDwL4jO36fq/ty9pGu8n+wZNidefnrM/mrwBOQFAwPwv6ArubhSAGtUDbXeaq6+xrO1U4icN1T3wDJg+QOBiC+zdnpCdefHcJ9Y8r9WhkzxAKlkMVr955zvcy/3TDxHS61gCsfspcZsN4CMvmDpwuIuvYAEdMQteqsMDaoZv0aNXK17CjK+4qPgDX2GSjrMJKEbEGQwD3uXtFTBQfHUX0pkFm++cOHxdRPlnAPjBTZih00PkRTkdqxAl4PBXBVRRpCPQqp7KL0yX3BkZeZnP6IgqF3D/5FKAAZG+gnJ8gJB3NBAFeY=
-#  file: ./dist_install/TANlockManager-Server-Setup.exe
-#  skip_cleanup: true
-#  on:
-#    branch: master
-#    node_js: lts/*
-#    repo: FATH-Mechatronics/TANlockManager-Server
+deploy:
+  provider: releases
+  api_key:
+    secure: BxkgSQUlu8g9Q7vg82U6nOwm8C4g5L7fE9iaWnQgr5/S+6LyVncLy6DjzKomnqJAKxqXJLWvE4mkwjEKBKBUhsGi13Aj4o733ohTkWrH/BDU5pB5E9wAWqhdo5YKKO14hm+LwcbPhao+0eG4X2shziLvBkNV165VRFt+VQUALbVHpELBlFRrKG+KCo8cuEFErULU9sukcAhIwuXhlBHtnmPIXFknx6QE5jX1FdYAcX5I/lfJ0BJYLEnwYGshTtJRc5BXyFVaBxdfCYRLh69ItV8fQK/sT+K3RxmpZ2DY40C38SQ9SyBf3mXt1sFwhSbUtl+c8eT3UeLIFGkYOgoIkIIV+yMW10jAxqmGacnTQHvjk9zWBcC2HlyGJdHoea27NZmyjIF+XugilYRz+kGBw2fBXya5XV/zzLrWfr08QI/DpNoDY34YyJs2a1MDf26pBtV0Sp3fx17wAGBDSOF+TTUdd9TMcL/6Eq+drJKti2Ym0EcyI0K52+gfSGcqfqSEhCJh9Bp2sQNPftrLnFflcZOGE8cJ8hZ30319ZQpAH6dm5m17tJkreLroYSDITredAI4Q8icFavcVnt95iw8SS6F7tafNVp7FiMc3N5ir8QIrmmiZu0qweYr6kZlzpLZ58j+iV2lNEXmohRwd6a2DxzEJshJV/l14mhG5CqWitEo=
+  file: "./dist_install/TANlockManager-Server-Setup.exe"
+  skip_cleanup: true
+  on:
+    branch: master
+    node_js: lts/*
+    repo: FATH-Mechatronics/TANlockManager-Server

@@ -104,10 +104,22 @@ Var AddFirewallException
 Var DataBasePath
 Var BaseURL
 Function "doneBaseConfig"
-  ${NSD_GetState} $hCtl_TANlockManagerBaseConfig_ServerRadioButton $InstallService
+  ${NSD_GetState} $hCtl_TANlockManagerBaseConfig_AddServiceCheckBox $InstallService
   ${NSD_GetState} $hCtl_TANlockManagerBaseConfig_AddFirewallCheckBox $AddFirewallException
   ${NSD_GetText} $hCtl_TANlockManagerBaseConfig_BasepathDirRequest_Txt $DataBasePath
   ${NSD_GetText} $hCtl_TANlockManagerBaseConfig_ClientBaseURLTextBox $BaseURL
+
+  ${If} ${PROD_TYPE} == "UI"
+    FileOpen $9 "$INSTDIR\bin\config.json" w
+    FileWrite $9 "{$\"baseURL$\":$\"$BaseURL$\"}"
+    FileClose $9
+  ${Else}
+    ${StrRep} '$0' '$DataBasePath' '\' '\\'
+    FileOpen $9 "$INSTDIR\bin\config.json" w
+    FileWrite $9 "{$\"basePath$\":$\"$0$\"}"
+    FileClose $9
+    CreateDirectory "$DataBasePath\plugins"
+  ${EndIf}
 
   ${If} $InstallService == 1
     ${StrRep} '$0' '$DataBasePath' '\' '\\'
@@ -176,11 +188,5 @@ Function "doneBaseConfig"
       ${EndIf}
     ${EndIf}
   ${EndIf}
-
-  ; ${If} $InstallAsClient == 1
-  ;   FileOpen $9 "$INSTDIR\bin\config.json" w
-  ;   FileWrite $9 "{$\"baseURL$\":$\"$BaseURL$\"}"
-  ;   FileClose $9
-  ; ${EndIf}
 
 FunctionEnd

@@ -4,6 +4,7 @@ import Permission from "../../model/Permission";
 import RowStore from "../../data/DataStores/RowStore";
 import CabinetStore from "../../data/DataStores/CabinetStore";
 import Row from "../../model/Row";
+
 const cabinetstore: CabinetStore = CabinetStore.getInstance();
 const rowstore: RowStore = RowStore.getInstance();
 export default class RowDataRoute implements IRoute {
@@ -15,22 +16,40 @@ export default class RowDataRoute implements IRoute {
         server.app
             .get("/data/row", (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
                 let list;
-                if(req.query.cage !== undefined){
+                if (req.query.cage !== undefined) {
                     let cid = Number.parseInt(req.query.cage);
                     list = rowstore.getRowsOfCage(cid);
-                }else{
+                } else {
                     list = rowstore.getRows();
                 }
                 res.send(list.filter(r => user.hasPermission(`row_${r.id}#${Permission.READ_ROW}`)));
             })
+            .get("/data/row/:rid", (req, res) => {
+                const rid = Number.parseInt(req.params.rid);
+                const user = req.user;
+                if (!user) {
+                    res.sendStatus(401);
+                    return;
+                }
+                if (!user.hasPermission(`row_${rid}#${Permission.WRITE_ROW}`)) {
+                    res.status(403).end();
+                    return;
+                }
+                let row = rowstore.findRowById(rid);
+                if (row != null) {
+                    res.send(row);
+                } else {
+                    res.status(404).end();
+                }
+            })
             .post("/data/row", (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -49,7 +68,7 @@ export default class RowDataRoute implements IRoute {
             .put("/data/row/:rid", (req, res) => {
                 const rid = Number.parseInt(req.params.rid);
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -68,11 +87,11 @@ export default class RowDataRoute implements IRoute {
             .delete("/data/row/:rid", (req, res) => {
                 const rid = Number.parseInt(req.params.rid);
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
-                if (!user.hasPermission(`cage_${rid}#${Permission.WRITE_ROW}`)) {
+                if (!user.hasPermission(`row_${rid}#${Permission.WRITE_ROW}`)) {
                     res.status(403).end();
                     return;
                 }

@@ -1,4 +1,4 @@
-import RestServer from "../server/Restserver";
+import RestServer from "../server/RestServer";
 
 export default interface IRoute{
     publicURLs(): string[];

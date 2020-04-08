@@ -73,7 +73,7 @@ async function start() {
     if (noserver) {
         // launchUI();
     } else {
-        const RestServer = (await import('./server/Restserver')).default;
+        const RestServer = (await import('./server/RestServer')).default;
         restServer = new RestServer();
         restServer.start()
             .then(() => {

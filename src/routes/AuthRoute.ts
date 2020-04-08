@@ -1,4 +1,4 @@
-import RestServer from "../server/Restserver";
+import RestServer from "../server/RestServer";
 import * as bcrypt from 'bcryptjs';
 import IRoute from "./IRoute";
 import User from "../model/User";
@@ -13,11 +13,14 @@ const REFRESH_TOKEN = "REFRESH_TOKEN";
 const userstore: UserStore = UserStore.getInstance();
 
 export default class AuthRoute implements IRoute {
+    private _server: RestServer;
+
     public publicURLs(): string[] {
         return ["/auth/login", "/auth/reauth", "/auth/logout"];
     }
 
     public init(server: RestServer): void {
+        this._server = server;
         server.app
             .post("/auth/reauth", (req, res) => {
                 const refresh = req.body.REFRESH_TOKEN;
@@ -83,26 +86,71 @@ export default class AuthRoute implements IRoute {
                     res.sendStatus(401);
                     return;
                 }
-                const user = userstore.findUserByName(req.body.user);
-                if (user == null || !user.hasPermission(Permission.SYSTEM_AUTH)) {
-                    res.sendStatus(401);
-                    return;
-                }
-                const pass = req.body.password;
-                bcrypt.compare(pass, user.pass, (err, resp) => {
-                    if (!err) {
-                        if (resp) {
-                            // @ts-ignore
+                const username = req.body.user;
+                const password = req.body.password;
+                if (server.pluginHandler) {
+                    const pHandler = server.pluginHandler;
+                    let user = userstore.findUserByName(username);
+                    pHandler.doAuthenticate(username, password).then(success => {
+                        if (success) {
+                            if (user == null && pHandler.autoCreateUser()) {
+                                console.log("CREATING NEW USER FOR U");
+                                let newUser = new User({
+                                    user: username,
+                                    roles: pHandler.defaultRoles()
+                                });
+                                userstore.createUser(newUser, false);
+                            }
+                            user = userstore.findUserByName(username);
+                            if (user == null || !user.hasPermission(Permission.SYSTEM_AUTH)) {
+                                res.sendStatus(401);
+                                return;
+                            }
+                            //SEND TOKEN
                             this.sendNewTokens(server, res, user);
+                            return;
                         } else {
-                            res.sendStatus(401);
+                            if (pHandler.fallbackToLocal()) {
+                                //AUTH LOCAL
+                                this.authLocal(username, password, res);
+                                return;
+                            } else {
+                                res.sendStatus(401);
+                                return;
+                            }
                         }
-                    } else {
-                        console.error(err);
-                        res.sendStatus(500);
-                    }
-                });
+                    }).catch((err) => {
+                        console.log("authCatch", err);
+                        //AUTH LOCAL
+                        this.authLocal(username, password, res);
+                        return;
+                    });
+                } else {
+                    console.error("SomeThing Went Really Bad Here...");
+                    res.sendStatus(500);
+                }
             });
+    }
+
+    private authLocal(username: string, pass: string, res) {
+        const user = userstore.findUserByName(username);
+        if (user == null || !user.hasPermission(Permission.SYSTEM_AUTH)) {
+            res.sendStatus(401);
+            return;
+        }
+        bcrypt.compare(pass, user.pass, (err, resp) => {
+            if (!err) {
+                if (resp) {
+                    //SEND TOKEN
+                    this.sendNewTokens(this._server, res, user);
+                } else {
+                    res.sendStatus(401);
+                }
+            } else {
+                console.error(err);
+                res.sendStatus(500);
+            }
+        });
     }
 
     private sendNewTokens(server: RestServer, res: Response, payload: User) {

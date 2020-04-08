@@ -60,9 +60,11 @@ export default class UserStore {
         return new User(foundClone);
     }
 
-    public createUser(user: User): boolean {
+    public createUser(user: User, createPass: boolean = true): boolean {
         if (this.findUserByName(user.user) == null) {
-            user.pass = bcrypt.hashSync(user.pass, SALT_ROUNDS);
+            if (createPass) {
+                user.pass = bcrypt.hashSync(user.pass, SALT_ROUNDS);
+            }
             this.usersdb.get("users").push(user).write();
             return true;
         } else {

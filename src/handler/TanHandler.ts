@@ -1,4 +1,4 @@
-import RestServer from "../server/Restserver";
+import RestServer from "../server/RestServer";
 import TanStore from "../data/DataStores/TanStore";
 import Tan from "../model/Tan";
 import { AxiosStatic } from "axios";

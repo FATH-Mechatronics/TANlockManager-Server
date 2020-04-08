@@ -1,5 +1,5 @@
 import IRoute from "./IRoute";
-import RestServer from "../server/Restserver";
+import RestServer from "../server/RestServer";
 import * as express from 'express';
 import * as path from 'path';
 

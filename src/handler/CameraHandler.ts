@@ -1,5 +1,5 @@
 import EventHandlerOptions from "../model/EventHandlerOptions";
-import RestServer from "../server/Restserver";
+import RestServer from "../server/RestServer";
 import TanLockEvent from "../model/TanLockEvent";
 import TanLock from "../model/TanLock";
 import * as fs from "fs";

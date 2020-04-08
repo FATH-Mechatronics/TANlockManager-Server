@@ -1,5 +1,4 @@
-import DataStore from "../data/Datastore";
-import RestServer from "../server/Restserver";
+import RestServer from "../server/RestServer";
 import IRoute from "./IRoute";
 import LogEvent from "../model/LogEvent";
 import LockDataRoute from "./DataRoute/LockDataRoute";

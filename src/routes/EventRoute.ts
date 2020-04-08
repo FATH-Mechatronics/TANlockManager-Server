@@ -1,4 +1,4 @@
-import RestServer from "../server/Restserver";
+import RestServer from "../server/RestServer";
 import TanLock from "../model/TanLock";
 import Cabinet from "../model/Cabinet";
 import EventHandlerOptions from "../model/EventHandlerOptions";
@@ -45,7 +45,7 @@ export default class EventRoute implements IRoute {
                     row = rowstore.findRowById(cabinet.row_id);
                 }
                 let cage: Cage | null = null;
-                if (row != null){
+                if (row != null) {
                     cage = cagestore.findCageById(row.cage_id);
                 }
 
@@ -54,7 +54,7 @@ export default class EventRoute implements IRoute {
                 }
 
                 server.pluginHandler.onEvent("tanlockEvent", {
-                    eventId: null,
+                    eventId: "generic",
                     event: "generic",
                     remoteAddress,
                     tanlock,
@@ -77,16 +77,21 @@ export default class EventRoute implements IRoute {
                 if (process.env.VERBOSE == "true")
                     console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
                 tanlock = lockstore.updateLockHeartBeat(remoteAddress);
-                if (req.params.eventId === "heartbeat") {
+                /*if (req.params.eventId === "heartbeat") {
                     res.status(200).end();
                     server.emitWS("tanlockEvent", tanlock);
                     return;
-                }
+                }*/
 
                 // TODO POLL state on First Event
                 let event: string;
-                const eventId = parseInt(req.params.eventId);
+                let eventId: number | string = Number.parseInt(req.params.eventId);
+                if (Number.isNaN(eventId)) {
+                    eventId = req.params.eventId;
+                }
                 switch (eventId) {
+                    case "heartbeat":
+                        event = TanLockEvent.HEARTBEAT;
                     case 2:
                         event = TanLockEvent.BOOT;
                         break;
@@ -151,12 +156,16 @@ export default class EventRoute implements IRoute {
                     if (updated != null && updated !== false) {
                         tanlock = (updated as TanLock);
                     }
-                } else {
+                } else if (event !== "heartbeat") {
                     tanlock = lockstore.updateLockState(tanlock, event, true);
                 }
+
                 server.emitWS("tanlockEvent", tanlock);
-                server.emitWS("logEvent", logstore.addLog(tanlock, event));
-                // server.emitWS("heartBeat", datastore.getSummary());
+
+                if (event !== TanLockEvent.HEARTBEAT) {
+                    server.emitWS("logEvent", logstore.addLog(tanlock, event));
+                }
+
                 res.status(200).end();
                 if (unknown) {
                     return;
@@ -171,12 +180,12 @@ export default class EventRoute implements IRoute {
                     row = rowstore.findRowById(cabinet.row_id);
                 }
                 let cage: Cage | null = null;
-                if (row != null){
+                if (row != null) {
                     cage = cagestore.findCageById(row.cage_id);
                 }
 
                 const eventOptions: EventHandlerOptions = {
-                    eventId: eventId,
+                    eventId,
                     event,
                     remoteAddress,
                     tanlock,
@@ -187,7 +196,7 @@ export default class EventRoute implements IRoute {
                 if (server.pluginHandler) {
                     server.pluginHandler.onEvent("tanlockEvent", eventOptions);
                 }
-                if (cabinet != null) {
+                if (event !== TanLockEvent.HEARTBEAT && cabinet != null) {
 
                     const cabinetLog: CabinetLogEntry = new CabinetLogEntry({
                         lock_id: tanlock.id,

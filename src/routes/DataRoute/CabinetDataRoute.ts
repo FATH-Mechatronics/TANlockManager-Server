@@ -1,5 +1,5 @@
 import IRoute from "../IRoute";
-import RestServer from "../../server/Restserver";
+import RestServer from "../../server/RestServer";
 import Cabinet from "../../model/Cabinet";
 import Permission from "../../model/Permission";
 import CabinetStore from "../../data/DataStores/CabinetStore";

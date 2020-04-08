@@ -4,7 +4,7 @@ import Cage from "./Cage";
 import Row from "./Row";
 
 export default class EventHandlerOptions {
-    eventId: number | null;
+    eventId: number | string;
     event: string;
     remoteAddress: string;
     tanlock: TanLock | null;

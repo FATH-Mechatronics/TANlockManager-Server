@@ -22,6 +22,7 @@ import BaseDirProvider from "../data/BaseDirProvider";
 import TanHandler from "../handler/TanHandler";
 import ExtendedLoggerType from "../model/ExtendedLoggerType";
 import UiRoute from "../routes/UiRoute";
+import PluginConfig from "../model/PluginConfig";
 
 // const express = require("express");
 const http = require('httpolyglot');
@@ -139,7 +140,8 @@ export default class RestServer {
                     this.ios = require('socket.io')(this.server);
                     this.configureWS();
 
-                    const pluginConfig = {axios, ws: this.ios, basepath: BaseDirProvider.getBasePath(), server: this};
+                    const pluginConfig: PluginConfig =
+                        new PluginConfig(axios, this.ios, BaseDirProvider.getBasePath(), this);
                     this.jwtHandler = JWTHandler.getInstance();
                     this.pluginHandler = PluginHandler.getInstance();
                     this.pluginHandler.init(pluginConfig);

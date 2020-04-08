@@ -1,5 +1,5 @@
 import IRoute from "../IRoute";
-import RestServer from "../../server/Restserver";
+import RestServer from "../../server/RestServer";
 import Cage from "../../model/Cage";
 import Permission from "../../model/Permission";
 import CageStore from "../../data/DataStores/CageStore";

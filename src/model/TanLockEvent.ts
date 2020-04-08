@@ -1,4 +1,6 @@
 export default class TanLockEvent {
+    // UNDEFINED
+    public static HEARTBEAT = "heartbeat";
     // 2
     public static BOOT = "boot";
     // 3

@@ -70,7 +70,7 @@ Function fnc_TANlockManagerBaseConfig_Create
   Pop $hCtl_TANlockManagerBaseConfig_Label1
 
   ; === BasepathDirRequest_Txt (type: Text) ===
-  ${NSD_CreateText} 8u 99u 259u 12u ""
+  ${NSD_CreateText} 8u 99u 259u 12u "$INSTDIR\data"
   Pop $hCtl_TANlockManagerBaseConfig_BasepathDirRequest_Txt
 
   ${If} ${PROD_TYPE} == "UI"

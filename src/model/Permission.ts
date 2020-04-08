@@ -1,6 +1,7 @@
 import TanLock from "./TanLock";
 import Cabinet from "./Cabinet";
 import Cage from "./Cage";
+import Row from "./Row";
 
 enum BasePermission {
     SYSTEM_AUTH,
@@ -34,7 +35,10 @@ enum BasePermission {
     WRITE_CABINET,
 
     READ_CAGE, // CAGE_ID#
-    WRITE_CAGE
+    WRITE_CAGE,
+
+    READ_ROW, // ROW_ID#
+    WRITE_ROW
 }
 
 export default class Permission {
@@ -71,6 +75,9 @@ export default class Permission {
     public static READ_CAGE: string = Permission.getBaseName(BasePermission.READ_CAGE); // CAGE_ID#
     public static WRITE_CAGE: string = Permission.getBaseName(BasePermission.WRITE_CAGE);
 
+    public static READ_ROW: string = Permission.getBaseName(BasePermission.READ_ROW); // ROW_ID#
+    public static WRITE_ROW: string = Permission.getBaseName(BasePermission.WRITE_ROW);
+
     permission: string;
     displayname: string;
 
@@ -94,7 +101,7 @@ export default class Permission {
         return perm;
     }
 
-    public static allPermissions(locks: TanLock[], cages: Cage[], cabinets: Cabinet[]): Permission[] {
+    public static allPermissions(locks: TanLock[], cages: Cage[], rows: Row[], cabinets: Cabinet[]): Permission[] {
         const perm: Permission[] = [];
         for (const enumMember in BasePermission) {
             const isValueProperty = parseInt(enumMember, 10) >= 0
@@ -116,6 +123,15 @@ export default class Permission {
                 new Permission(base + Permission.READ_LOG, name + Permission.READ_LOG),
                 new Permission(base + Permission.READ_LOG_USERS, name + Permission.READ_LOG_USERS),
                 new Permission(base + Permission.READ_LOG_IMAGES, name + Permission.READ_LOG_IMAGES)
+            );
+        });
+
+        rows.forEach(r => {
+            const base = `row_${r.id}#`;
+            const name = `row_${r.name}#`;
+            perm.push(
+                new Permission(base + Permission.READ_ROW, name + Permission.READ_ROW),
+                new Permission(base + Permission.WRITE_ROW, name + Permission.WRITE_ROW)
             );
         });
 

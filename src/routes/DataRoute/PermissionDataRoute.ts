@@ -9,6 +9,7 @@ import Role from "../../model/Role";
 import LockStore from "../../data/DataStores/LockStore";
 import CageStore from "../../data/DataStores/CageStore";
 import CabinetStore from "../../data/DataStores/CabinetStore";
+import RowStore from "../../data/DataStores/RowStore";
 
 const userstore: UserStore = UserStore.getInstance();
 export default class PermissionDataRoute implements IRoute {
@@ -78,6 +79,7 @@ export default class PermissionDataRoute implements IRoute {
                     const permissions = Permission.allPermissions(
                         LockStore.getInstance().getLocks(),
                         CageStore.getInstance().getCages(),
+                        RowStore.getInstance().getRows(),
                         CabinetStore.getInstance().getCabinets()
                     );
                     res.send(permissions).end();

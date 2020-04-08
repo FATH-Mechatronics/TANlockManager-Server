@@ -1,7 +1,6 @@
 import IRoute from "../IRoute";
 import RestServer from "../../server/Restserver";
 import Cabinet from "../../model/Cabinet";
-import AuthUser from "../../model/AuthUser";
 import Permission from "../../model/Permission";
 import CabinetStore from "../../data/DataStores/CabinetStore";
 import CameraHandler from "../../handler/CameraHandler";
@@ -16,17 +15,22 @@ export default class CabinetDataRoute implements IRoute {
 
     public init(server: RestServer): void {
         server.app
-            .get("/data/cage/:id/cabinet", (req, res) => {
-                const id = Number.parseInt(req.params.id);
+            .get("/data/cabinet", (req, res) => {
                 const user = req.user;
                 if (!user) {
                     res.sendStatus(401);
                     return;
                 }
-                const cabinets = cabinetstore.getCabinetsOfCage(id);
-                res.send(cabinets.filter(c => user.hasPermission(`cabinet_${c.id}#${Permission.READ_CABINET}`)));
+                let list;
+                if(req.query.row !== undefined){
+                    let rid = Number.parseInt(req.query.row);
+                    list = cabinetstore.getCabinetsOfRow(rid);
+                }else{
+                    list = cabinetstore.getCabinets();
+                }
+                res.send(list.filter(c => user.hasPermission(`cabinet_${c.id}#${Permission.READ_CABINET}`)));
             })
-            .get("/data/cage/:id/cabinet/:cid", (req, res) => {
+            .get("/data/cabinet/:cid", (req, res) => {
                 const user = req.user;
                 if (!user) {
                     res.sendStatus(401);
@@ -74,7 +78,7 @@ export default class CabinetDataRoute implements IRoute {
                 }
                 return res.send(logs);
             })
-            .post("/data/cage/:id/cabinet", (req, res) => {
+            .post("/data/cabinet", (req, res) => {
                 const user = req.user;
                 if (!user) {
                     res.sendStatus(401);
@@ -85,15 +89,14 @@ export default class CabinetDataRoute implements IRoute {
                     return;
                 }
                 const cabinet = new Cabinet(req.body);
-                cabinet.cage = Number.parseInt(req.params.id);
-                const result = cabinetstore.addCabinet(cabinet)
+                const result = cabinetstore.addCabinet(cabinet);
                 if (result === true) {
                     res.send(cabinet);
                 } else {
                     res.status(409).json(result);
                 }
             })
-            .put("/data/cage/:id/cabinet/:cid", (req, res) => {
+            .put("/data/cabinet/:cid", (req, res) => {
                 const cid = Number.parseInt(req.params.cid);
                 const user = req.user;
                 if (!user) {
@@ -113,7 +116,7 @@ export default class CabinetDataRoute implements IRoute {
                 }
                 res.status(404).end();
             })
-            .delete("/data/cage/:id/cabinet/:cid", (req, res) => {
+            .delete("/data/cabinet/:cid", (req, res) => {
                 const cid = Number.parseInt(req.params.cid);
                 const user = req.user;
                 if (!user) {

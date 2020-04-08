@@ -1,10 +1,14 @@
 import TanLock from "./TanLock";
 import Cabinet from "./Cabinet";
+import Cage from "./Cage";
+import Row from "./Row";
 
 export default class EventHandlerOptions {
-    evetnId: number | null;
+    eventId: number | null;
     event: string;
     remoteAddress: string;
     tanlock: TanLock | null;
     cabinet: Cabinet | null;
+    row: Row | null;
+    cage: Cage | null;
 }

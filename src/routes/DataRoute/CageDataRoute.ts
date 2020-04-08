@@ -1,15 +1,11 @@
 import IRoute from "../IRoute";
 import RestServer from "../../server/Restserver";
-import User from "../../model/User";
-import TanLock from "../../model/TanLock";
-import DataStore from "../../data/Datastore";
 import Cage from "../../model/Cage";
-import AuthUser from "../../model/AuthUser";
 import Permission from "../../model/Permission";
 import CageStore from "../../data/DataStores/CageStore";
-import CabinetStore from "../../data/DataStores/CabinetStore";
-const datastore: DataStore = DataStore.getInstance();
-const cabinetstore: CabinetStore = CabinetStore.getInstance();
+import RowStore from "../../data/DataStores/RowStore";
+
+const rowstore: RowStore = RowStore.getInstance();
 const cagestore: CageStore = CageStore.getInstance();
 export default class CageDataRoute implements IRoute {
     public publicURLs(): string[] {
@@ -20,16 +16,35 @@ export default class CageDataRoute implements IRoute {
         server.app
             .get("/data/cage", (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
                 const list = cagestore.getCages();
                 res.send(list.filter(c => user.hasPermission(`cage_${c.id}#${Permission.READ_CAGE}`)));
             })
+            .get("/data/cage/:id", (req, res) => {
+                const user = req.user;
+                if (!user) {
+                    res.sendStatus(401);
+                    return;
+                }
+                const id = Number.parseInt(req.params.id);
+                const cage = cagestore.findCageById(id);
+                if (cage != null) {
+
+                    if (user.hasPermission(`cage_${cage.id}#${Permission.READ_CAGE}`)) {
+                        res.send(cage);
+                    } else {
+                        res.sendStatus(403).end();
+                    }
+                } else {
+                    res.sendStatus(404).end();
+                }
+            })
             .post("/data/cage", (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -48,7 +63,7 @@ export default class CageDataRoute implements IRoute {
             .put("/data/cage/:id", (req, res) => {
                 const id = Number.parseInt(req.params.id);
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -67,7 +82,7 @@ export default class CageDataRoute implements IRoute {
             .delete("/data/cage/:id", (req, res) => {
                 const id = Number.parseInt(req.params.id);
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -75,8 +90,8 @@ export default class CageDataRoute implements IRoute {
                     res.status(403).end();
                     return;
                 }
-                const cabinets = cabinetstore.getCabinetsOfCage(id);
-                if (cabinets.length > 0) {
+                const rows = rowstore.getRowsOfCage(id);
+                if (rows.length > 0) {
                     res.status(406).end();
                 } else {
                     res.send(cagestore.deleteCage(id)).end();

@@ -1,5 +1,3 @@
-import DataStore from "../data/Datastore";
-// import * as express from 'express';
 import RestServer from "../server/Restserver";
 import TanLock from "../model/TanLock";
 import Cabinet from "../model/Cabinet";
@@ -12,8 +10,14 @@ import LockStore from "../data/DataStores/LockStore";
 import CabinetStore from "../data/DataStores/CabinetStore";
 import LogStore from "../data/DataStores/LogStore";
 import ExtendedLoggerType from "../model/ExtendedLoggerType";
+import Row from "../model/Row";
+import RowStore from "../data/DataStores/RowStore";
+import CageStore from "../data/DataStores/CageStore";
+import Cage from "../model/Cage";
 
 const lockstore: LockStore = LockStore.getInstance();
+const rowstore: RowStore = RowStore.getInstance();
+const cagestore: CageStore = CageStore.getInstance();
 const cabinetstore: CabinetStore = CabinetStore.getInstance();
 const logstore: LogStore = LogStore.getInstance();
 
@@ -30,19 +34,33 @@ export default class EventRoute implements IRoute {
                     console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
                 res.status(200).end();
                 const tanlock = lockstore.findLockByIp(remoteAddress);
+
+                //FETCH LOCK TreeHirarchie
                 let cabinet: Cabinet | null = null;
                 if (tanlock != null) {
                     cabinet = cabinetstore.findCabinetByLock(tanlock);
                 }
+                let row: Row | null = null;
+                if (cabinet != null) {
+                    row = rowstore.findRowById(cabinet.row_id);
+                }
+                let cage: Cage | null = null;
+                if (row != null){
+                    cage = cagestore.findCageById(row.cage_id);
+                }
+
                 if (!server.pluginHandler) {
                     return;
                 }
+
                 server.pluginHandler.onEvent("tanlockEvent", {
-                    evetnId: null,
+                    eventId: null,
                     event: "generic",
                     remoteAddress,
                     tanlock,
-                    cabinet
+                    cabinet,
+                    row,
+                    cage
                 });
             })
             .all('/event/:eventId', (req, res) => {
@@ -143,13 +161,28 @@ export default class EventRoute implements IRoute {
                 if (unknown) {
                     return;
                 }
-                const cabinet = cabinetstore.findCabinetByLock(tanlock);
+                //FETCH LOCK TreeHirarchie
+                let cabinet: Cabinet | null = null;
+                if (tanlock != null) {
+                    cabinet = cabinetstore.findCabinetByLock(tanlock);
+                }
+                let row: Row | null = null;
+                if (cabinet != null) {
+                    row = rowstore.findRowById(cabinet.row_id);
+                }
+                let cage: Cage | null = null;
+                if (row != null){
+                    cage = cagestore.findCageById(row.cage_id);
+                }
+
                 const eventOptions: EventHandlerOptions = {
-                    evetnId: eventId,
+                    eventId: eventId,
                     event,
                     remoteAddress,
                     tanlock,
-                    cabinet
+                    cabinet,
+                    row,
+                    cage
                 };
                 if (server.pluginHandler) {
                     server.pluginHandler.onEvent("tanlockEvent", eventOptions);

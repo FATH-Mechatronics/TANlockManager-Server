@@ -63,7 +63,7 @@ export default class CameraHandler {
                 start: new Date().getTime(),
                 timeout: null,
                 stop: false
-            }
+            };
             this.runningCams.push(cam);
             this.doPhoto(cam);
         } else {
@@ -77,7 +77,7 @@ export default class CameraHandler {
             return;
         }
         // @ts-ignore
-        const index = this.runningCams.findIndex(c => c.tanlock.ip === options.tanlock.ip)
+        const index = this.runningCams.findIndex(c => c.tanlock.id === options.tanlock.id);
         if (index >= 0) {
             console.log("Stop Camera ", index, options.cabinet.name, options.tanlock.ip);
             this.runningCams[index].stop = true;

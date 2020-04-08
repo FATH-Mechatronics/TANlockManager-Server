@@ -18,8 +18,8 @@ export default class CabinetStore {
         return this.db.get("cabinets").value().map(c => new Cabinet(c));
     }
 
-    public getCabinetsOfCage(cage: number): Cabinet[] {
-        return this.db.get("cabinets").filter({ cage }).value().map(c => new Cabinet(c));
+    public getCabinetsOfRow(row: number): Cabinet[] {
+        return this.db.get("cabinets").filter({ row_id: row }).value().map(c => new Cabinet(c));
     }
 
     public findCabinetById(id: number): Cabinet | null {

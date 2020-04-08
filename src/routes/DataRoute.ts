@@ -2,27 +2,27 @@ import DataStore from "../data/Datastore";
 import RestServer from "../server/Restserver";
 import IRoute from "./IRoute";
 import LogEvent from "../model/LogEvent";
-import LockDataRoute from "./DataRoute/Lock";
-import CageDataRoute from "./DataRoute/Cage";
-import CabinetDataRoute from "./DataRoute/Cabinet";
+import LockDataRoute from "./DataRoute/LockDataRoute";
+import CageDataRoute from "./DataRoute/CageDataRoute";
+import CabinetDataRoute from "./DataRoute/CabinetDataRoute";
 import LogStore from "../data/DataStores/LogStore";
 import PermissionDataRoute from "./DataRoute/PermissionDataRoute";
-import AuthUser from "../model/AuthUser";
+import RowDataRoute from "./DataRoute/RowDataRoute";
 import Permission from "../model/Permission";
 
 const logstore: LogStore = LogStore.getInstance();
 
 export default class DataRoute implements IRoute {
-    private static SUBROUTES = [new LockDataRoute, new CageDataRoute, new CabinetDataRoute, new PermissionDataRoute];
+    private static SUB_ROUTES = [new LockDataRoute, new CageDataRoute, new CabinetDataRoute, new PermissionDataRoute, new RowDataRoute];
 
     public publicURLs(): string[] {
         const publics: string[] = [];
-        DataRoute.SUBROUTES.forEach(sub => sub.publicURLs().forEach(u => publics.push(u)));
+        DataRoute.SUB_ROUTES.forEach(sub => sub.publicURLs().forEach(u => publics.push(u)));
         return publics;
     }
 
     public init(server: RestServer): void {
-        DataRoute.SUBROUTES.forEach(sub => sub.init(server));
+        DataRoute.SUB_ROUTES.forEach(sub => sub.init(server));
         server.app
             .get("/data/log", (req, res) => {
                 const user = req.user;

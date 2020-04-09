@@ -92,6 +92,7 @@ export default class EventRoute implements IRoute {
                 switch (eventId) {
                     case "heartbeat":
                         event = TanLockEvent.HEARTBEAT;
+                        break;
                     case 2:
                         event = TanLockEvent.BOOT;
                         break;

@@ -214,7 +214,7 @@ export default class CameraHandler {
 
     // ts_{timeReadable}_{timeStamp}_{state}.jpg
     public static getImageFileName(date: Date, state: string) {
-        return `ts${CameraHandler.leadingZero(date.getHours())}:${CameraHandler.leadingZero(date.getMinutes())}_${date.getTime()}_${state}.jpg`
+        return `ts${CameraHandler.leadingZero(date.getHours())}_${CameraHandler.leadingZero(date.getMinutes())}_${date.getTime()}_${state}.jpg`
     }
 
     public static leadingZero(x: number, base: number = 10) {

@@ -41,10 +41,26 @@ export default class CameraHandler {
     }
 
     public handleEvent(options: EventHandlerOptions) {
-        if (options.event == TanLockEvent.UNLOCKING || options.event == TanLockEvent.OPENING) {
-            this.startCamera(options);
-        } else if (options.event == TanLockEvent.LOCKING) {
-            this.stopCamera(options);
+        switch (options.event) {
+            case TanLockEvent.UNLOCKING:
+            case TanLockEvent.OPENING:
+            case TanLockEvent.S1_OPEN:
+            case TanLockEvent.S2_OPEN:
+                this.startCamera(options);
+                break;
+            default:
+                let isSafeState = true;
+                if (options.tanlock?.useDoor_1==true){
+                    isSafeState = isSafeState && options.tanlock.door_1;
+                }
+                if (options.tanlock?.useDoor_2==true){
+                    isSafeState = isSafeState && options.tanlock.door_2;
+                }
+                let handleUnLocked = options.tanlock?.state === "unlocked" || options.tanlock?.state === "open";
+                isSafeState = isSafeState && !handleUnLocked;
+                if(isSafeState){
+                    this.stopCamera(options);
+                }
         }
     }
 

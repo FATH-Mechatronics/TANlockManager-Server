@@ -1,3 +1,5 @@
+import EventHandlerOptions from "../../model/EventHandlerOptions";
+
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
@@ -28,21 +30,29 @@ export default class LogStore {
         return [];
     }
 
-    public addLog(lock: TanLock, value: string, time: number = new Date().getTime(), updateLock: boolean = false): any {
+    public addLog(event: EventHandlerOptions | TanLock, payload: string = "", updateLock: boolean = false): LogEvent | null {
+        let lock: TanLock | null = (event instanceof EventHandlerOptions ? event.tanlock : event);
+        if (lock == null)
+            return null;
         if (updateLock)
-            LockStore.getInstance().updateLockState(lock, value);
+            LockStore.getInstance().updateLockState(lock, (event instanceof EventHandlerOptions ? event.event : payload));
         const log = new LogEvent();
         log.lock_id = lock.id;
         log.name = lock.name;
-        log.value = value;
-        log.time = time;
+        if (event instanceof EventHandlerOptions) {
+            log.value = payload || event.event;
+            log.time = event.timestamp;
+        } else {
+            log.value = payload;
+            log.time = new Date().getTime();
+        }
         this.logdb.get("log")
             .push(log)
             .write();
         return log;
     }
 
-    private constructor(){
+    private constructor() {
         const basePath = DataStore.getBasePath();
 
         const logAdapter = new FileSync(`${basePath}/log.json`);

@@ -23,6 +23,7 @@ import TanHandler from "../handler/TanHandler";
 import ExtendedLoggerType from "../model/ExtendedLoggerType";
 import UiRoute from "../routes/UiRoute";
 import PluginConfig from "../model/PluginConfig";
+import LockEventHandler from "../handler/LockEventHandler";
 
 // const express = require("express");
 const http = require('httpolyglot');
@@ -49,6 +50,7 @@ export default class RestServer {
     cameraHandler: CameraHandler | undefined;
     sensorFetchHandler: SensorFetchHandler | undefined;
     tanHandler: TanHandler | undefined;
+    lockEventHandler: LockEventHandler | undefined;
     axios: AxiosStatic = axios;
     routes: IRoute[];
 
@@ -150,7 +152,9 @@ export default class RestServer {
                     this.tanHandler = TanHandler.getInstance();
                     this.tanHandler.init(pluginConfig);
                     this.sensorFetchHandler = SensorFetchHandler.getInstance();
-                    this.sensorFetchHandler.init(this);
+                    this.sensorFetchHandler.init(pluginConfig);
+                    this.lockEventHandler = LockEventHandler.getInstance();
+                    this.lockEventHandler.init(pluginConfig);
                     if (this.server != null) {
                         this.server.on('error', (e) => {
                             if (e.code === 'EADDRINUSE') {
@@ -227,6 +231,9 @@ export default class RestServer {
         } else if (data.lock_id != null) {
             console.error("WS EVENT MISSING CLASS", data);
             permission = `lock_${data.lock_id}#${Permission.READ_LOG}`;
+        } else if(data.tanlock.id != null) {
+            console.error("WS EVENT MISSING CLASS", data);
+            permission = `lock_${data.tanlock.id}#${Permission.READ_LOCK}`;
         }
 
         if (permission.length == 0) {

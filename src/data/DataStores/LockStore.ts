@@ -14,7 +14,7 @@ export default class LockStore {
     };
 
     public updateLockState(lock: TanLock, value: string, isEvent: boolean = false): TanLock {
-        let state = "unknown"
+        let state = "unknown";
 
         if (isEvent) {
             switch (value) {
@@ -39,7 +39,7 @@ export default class LockStore {
         }
         if (state !== "unknown") {
             return new TanLock(this.db.get("tanlocks")
-                .find({ 'ip': lock.ip })
+                .find({ 'id': lock.id })
                 .set("state", state)
                 .write());
         }

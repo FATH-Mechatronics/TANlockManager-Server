@@ -14,12 +14,12 @@ import Row from "../model/Row";
 import RowStore from "../data/DataStores/RowStore";
 import CageStore from "../data/DataStores/CageStore";
 import Cage from "../model/Cage";
+import LockEventHandler from "../handler/LockEventHandler";
 
 const lockstore: LockStore = LockStore.getInstance();
 const rowstore: RowStore = RowStore.getInstance();
 const cagestore: CageStore = CageStore.getInstance();
 const cabinetstore: CabinetStore = CabinetStore.getInstance();
-const logstore: LogStore = LogStore.getInstance();
 
 export default class EventRoute implements IRoute {
     public publicURLs(): string[] {
@@ -29,191 +29,13 @@ export default class EventRoute implements IRoute {
     public init(server: RestServer): void {
         server.app
             .all('/event', (req, res) => {
-                const remoteAddress = EventRoute.getRemoteIp(req);
-                if (process.env.VERBOSE == "true")
-                    console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
+                this.handleEvent(req);
                 res.status(200).end();
-                const tanlock = lockstore.findLockByIp(remoteAddress);
-
-                //FETCH LOCK TreeHirarchie
-                let cabinet: Cabinet | null = null;
-                if (tanlock != null) {
-                    cabinet = cabinetstore.findCabinetByLock(tanlock);
-                }
-                let row: Row | null = null;
-                if (cabinet != null) {
-                    row = rowstore.findRowById(cabinet.row_id);
-                }
-                let cage: Cage | null = null;
-                if (row != null) {
-                    cage = cagestore.findCageById(row.cage_id);
-                }
-
-                if (!server.pluginHandler) {
-                    return;
-                }
-
-                server.pluginHandler.onEvent("tanlockEvent", {
-                    eventId: "generic",
-                    event: "generic",
-                    remoteAddress,
-                    tanlock,
-                    cabinet,
-                    row,
-                    cage
-                });
             })
             .all('/event/:eventId', (req, res) => {
-                let unknown = false;
-                const remoteAddress = EventRoute.getRemoteIp(req);
-                let tanlock = lockstore.findLockByIp(remoteAddress);
-                // console.log("TANlock: ");
-                if (tanlock == null) {
-                    tanlock = lockstore.addUnknownLock(remoteAddress);
-                    unknown = true;
-                    console.log("UNKNOWN TANLOCK");
-                }
-
-                if (process.env.VERBOSE == "true")
-                    console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
-                tanlock = lockstore.updateLockHeartBeat(remoteAddress);
-                /*if (req.params.eventId === "heartbeat") {
-                    res.status(200).end();
-                    server.emitWS("tanlockEvent", tanlock);
-                    return;
-                }*/
-
-                // TODO POLL state on First Event
-                let event: string;
-                let eventId: number | string = Number.parseInt(req.params.eventId);
-                if (Number.isNaN(eventId)) {
-                    eventId = req.params.eventId;
-                }
-                switch (eventId) {
-                    case "heartbeat":
-                        event = TanLockEvent.HEARTBEAT;
-                        break;
-                    case 2:
-                        event = TanLockEvent.BOOT;
-                        break;
-                    case 3:
-                        event = TanLockEvent.PINENTERING;
-                        break;
-                    case 4:
-                        event = TanLockEvent.PINTIMEOUT;
-                        break;
-                    case 5:
-                        event = TanLockEvent.PINERROR;
-                        break;
-                    case 6:
-                        event = TanLockEvent.UNLOCKING;
-                        break;
-                    case 7:
-                        event = TanLockEvent.LOCKING;
-                        break;
-                    case 8:
-                        event = TanLockEvent.OPENING;
-                        break;
-                    case 9:
-                        event = TanLockEvent.CLOSING;
-                        break;
-                    case 10:
-                        event = TanLockEvent.S1_OPEN;
-                        tanlock.door_1 = false;
-                        tanlock.useDoor_1 = true;
-                        break;
-                    case 11:
-                        event = TanLockEvent.S1_CLOSE;
-                        tanlock.door_1 = true;
-                        tanlock.useDoor_1 = true;
-                        break;
-                    case 12:
-                        event = TanLockEvent.S2_OPEN;
-                        tanlock.door_2 = false;
-                        tanlock.useDoor_2 = true;
-                        break;
-                    case 13:
-                        event = TanLockEvent.S2_CLOSE;
-                        tanlock.door_2 = true;
-                        tanlock.useDoor_2 = true;
-                        break;
-                    case 14:
-                        event = TanLockEvent.SUCCESS_LDAP;
-                        break;
-                    case 15:
-                        event = TanLockEvent.SUCCESS_LOCAL;
-                        break;
-                    case 16:
-                        event = TanLockEvent.SUCCESS_MASTER;
-                        break;
-                    default:
-                        event = `unknown_${eventId}`;
-                        console.error(`Unnknown event ${eventId}`);
-                        break;
-                }
-                // DOORE EVENTS
-                if (eventId >= 10) {
-                    const updated = lockstore.patchLock(tanlock.id, tanlock);
-                    if (updated != null && updated !== false) {
-                        tanlock = (updated as TanLock);
-                    }
-                } else if (event !== "heartbeat") {
-                    tanlock = lockstore.updateLockState(tanlock, event, true);
-                }
-
-                server.emitWS("tanlockEvent", tanlock);
-
-                if (event !== TanLockEvent.HEARTBEAT) {
-                    server.emitWS("logEvent", logstore.addLog(tanlock, event));
-                }
-
+                this.handleEvent(req);
                 res.status(200).end();
-                if (unknown) {
-                    return;
-                }
-                //FETCH LOCK TreeHirarchie
-                let cabinet: Cabinet | null = null;
-                if (tanlock != null) {
-                    cabinet = cabinetstore.findCabinetByLock(tanlock);
-                }
-                let row: Row | null = null;
-                if (cabinet != null) {
-                    row = rowstore.findRowById(cabinet.row_id);
-                }
-                let cage: Cage | null = null;
-                if (row != null) {
-                    cage = cagestore.findCageById(row.cage_id);
-                }
-
-                const eventOptions: EventHandlerOptions = {
-                    eventId,
-                    event,
-                    remoteAddress,
-                    tanlock,
-                    cabinet,
-                    row,
-                    cage
-                };
-                if (server.pluginHandler) {
-                    server.pluginHandler.onEvent("tanlockEvent", eventOptions);
-                }
-                if (event !== TanLockEvent.HEARTBEAT && cabinet != null) {
-
-                    const cabinetLog: CabinetLogEntry = new CabinetLogEntry({
-                        lock_id: tanlock.id,
-                        lock_name: tanlock.name,
-                        time: new Date().getTime(),
-                        type: ExtendedLoggerType.TYPETANLOCK,
-                        event
-                    });
-
-                    ExtendedLogger.appendLog(tanlock, cabinetLog);
-                    server.emitWS("cabinetLog", cabinetLog);
-                    if (server.cameraHandler) {
-                        server.cameraHandler.handleEvent(eventOptions);
-                    }
-                }
-            })
+            });
     }
 
     private static getRemoteIp(req): string {
@@ -222,5 +44,37 @@ export default class EventRoute implements IRoute {
         } else {
             return req.connection.remoteAddress;
         }
+    }
+
+    private handleEvent(req){
+        const event = new EventHandlerOptions();
+
+        if(req.params.eventId == undefined){
+            event.eventId = TanLockEvent.GENERIC;
+            event.event = TanLockEvent.GENERIC;
+        }else {
+            event.eventId = Number.parseInt(req.params.eventId);
+            if (Number.isNaN(event.eventId)) {
+                event.eventId = req.params.eventId;
+            }
+        }
+
+        event.remoteAddress = EventRoute.getRemoteIp(req);
+        //FETCH LOCK TreeHirarchie
+        event.tanlock = lockstore.findLockByIp(event.remoteAddress);
+        if (event.tanlock != null) {
+            event.cabinet = cabinetstore.findCabinetByLock(event.tanlock);
+        }
+        if (event.cabinet != null) {
+            event.row = rowstore.findRowById(event.cabinet.row_id);
+        }
+        if (event.row != null) {
+            event.cage = cagestore.findCageById(event.row.cage_id);
+        }
+
+        if (process.env.VERBOSE == "true")
+            console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
+
+        LockEventHandler.getInstance().handle(event, req.body, req);
     }
 };

@@ -5,6 +5,7 @@ import RestServer from "../server/RestServer";
 import SensorStore from "../data/DataStores/SensorStore";
 import CabinetLogEntry from "../model/CabinetLogEntry";
 import ExtendedLoggerType from "../model/ExtendedLoggerType";
+import PluginConfig from "../model/PluginConfig";
 
 const datastore = DataStore.getInstance();
 const lockstore = LockStore.getInstance();
@@ -23,8 +24,8 @@ export default class SensorFetchHandler {
     private server: RestServer;
     private timeout: any;
 
-    public init(server: RestServer) {
-        this.server = server;
+    public init(config: PluginConfig) {
+        this.server = config.server;
         this.timeout = setTimeout(SensorFetchHandler.getInstance().handle, 10_000);
     }
 

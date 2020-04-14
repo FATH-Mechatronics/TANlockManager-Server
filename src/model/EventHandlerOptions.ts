@@ -11,4 +11,11 @@ export default class EventHandlerOptions {
     cabinet: Cabinet | null;
     row: Row | null;
     cage: Cage | null;
+    timestamp: number;
+
+    constructor() {
+        this.event = "generic";
+        this.eventId = "generic";
+        this.timestamp = new Date().getTime();
+    }
 }

@@ -9,7 +9,7 @@ import IAuthPlugin from "./pluginInterfaces/IAuthPlugin";
 import ICameraPlugin from "./pluginInterfaces/ICameraPlugin";
 import IEventPlugin from "./pluginInterfaces/IEventPlugin";
 import ISensorPlugin from "./pluginInterfaces/ISensorPlugin";
-import User from "../model/User";
+import PluginConfig from "../model/PluginConfig";
 
 const basePath = DataStore.getBasePath();
 
@@ -73,7 +73,7 @@ export default class PluginHandler {
         }
     }
 
-    public init(config: any) {
+    public init(config: PluginConfig) {
         this.pluginsHolder.authPlugins.forEach(p => {
             if (p.init) {
                 p.init(config);

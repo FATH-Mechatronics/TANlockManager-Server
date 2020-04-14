@@ -11,6 +11,10 @@ import LogStore from "../../data/DataStores/LogStore";
 import SensorStore from "../../data/DataStores/SensorStore";
 import TanStore from "../../data/DataStores/TanStore";
 import Tan from "../../model/Tan";
+import LockEventHandler from "../../handler/LockEventHandler";
+import CabinetLogEntry from "../../model/CabinetLogEntry";
+import ExtendedLoggerType from "../../model/ExtendedLoggerType";
+import ExtendedLogger from "../../data/ExtendedLogger";
 
 const lockstore: LockStore = LockStore.getInstance();
 const logstore: LogStore = LogStore.getInstance();
@@ -148,19 +152,12 @@ export default class LockDataRoute implements IRoute {
                         res.status(403).end();
                         return;
                     }
-                    server.axios.get(lock.getBaseUrl() + "/status")
-                        .then((response) => {
-                            // @ts-ignore
-                            lock = lockstore.updateLockState(lock, response.data.state);
-                            server.emitWS("tanlockEvent", lock);
+                    LockEventHandler.getInstance().fetchLockInfo(lock)
+                        .then((lock) => {
                             res.send(lock);
                         })
-                        .catch((reason) => {
-                            // @ts-ignore
-                            lock = lockstore.updateLockState(lock, "error");
-                            server.emitWS("tanlockEvent", lock);
-                            server.emitWS("logEvent", logstore.addLog(lock, `❌ fetching data: ${reason.message}`));
-                            res.status(500).send({error: reason.message});
+                        .catch((err) => {
+                            res.status(500).send({error: err.message});
                         });
                 } else {
                     res.status(404).end();
@@ -228,8 +225,10 @@ export default class LockDataRoute implements IRoute {
                         res.sendStatus(401);
                         return;
                     }
-                    let lock = lockstore.findLockById(id);
-                    if (lock != null) {
+                    const lock = lockstore.findLockById(id);
+                    if(lock === null) {
+                        res.status(404).end();
+                    }else {
                         if ((req.body.type === "prepareopen" && !user.hasPermission(`lock_${id}#${Permission.PREPAREOPEN_LOCK}`)) ||
                             (req.body.type === "input" && !user.hasPermission(`lock_${id}#${Permission.INPUT_LOCK}`))) {
                             console.log(user);
@@ -239,19 +238,31 @@ export default class LockDataRoute implements IRoute {
                         server.axios.get(lock.getBaseUrl() + "/" + req.body.type + "/" + req.body.pin)
                             .then((response) => {
                                 res.send({ok: true, resp: response.data});
+
+                                server.emitWS("logEvent", logstore.addLog(lock, `${req.body.type} 🔓 User: ${user.user}, Reason: ${req.body.reason}`));
+                                //CABINET LOGGING
+                                const cabinetLog: CabinetLogEntry = new CabinetLogEntry({
+                                    lock_id: lock.id,
+                                    lock_name: lock.name,
+                                    time: new Date().getTime(),
+                                    type: ExtendedLoggerType.TYPESYSTEM,
+                                    event: req.body.type,
+                                    value: `🔓 User: ${user.user}, Reason: ${req.body.reason}`
+                                });
+
+                                ExtendedLogger.appendLog(lock, cabinetLog);
+                                server.emitWS("cabinetLog", cabinetLog);
                             })
                             .catch((reason) => {
-                                // @ts-ignore
-                                lock = lockstore.updateLockState(lock, "error");
-                                server.emitWS("tanlockEvent", lock);
-                                server.emitWS("logEvent", logstore.addLog(lock, `❌ opening lock: ${reason.message}`));
+                                let newLock = lockstore.updateLockState(lock, "error");
+                                server.emitWS("tanlockEvent", newLock);
+                                server.emitWS("logEvent", logstore.addLog(newLock, `❌ User: ${user.user}, opening lock: ${reason.message}`));
                                 res.status(500).send({error: reason.message});
                                 console.error(reason);
                             });
                         return;
                     }
                 }
-                res.status(404).end();
             })
             .get("/data/lock/:id/sensor", (req, res) => {
                 const id = Number.parseInt(req.params.id);
@@ -338,7 +349,7 @@ export default class LockDataRoute implements IRoute {
             })
             .get("/data/lock/:id/camera/:time-:state.jpg", (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -370,7 +381,7 @@ export default class LockDataRoute implements IRoute {
             })
             .get('/data/lock/:id/tan', (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -383,7 +394,7 @@ export default class LockDataRoute implements IRoute {
             })
             .post('/data/lock/:id/tan', (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }
@@ -416,7 +427,7 @@ export default class LockDataRoute implements IRoute {
             })
             .delete('/data/lock/:id/tan/:user', (req, res) => {
                 const user = req.user;
-                if(!user){
+                if (!user) {
                     res.sendStatus(401);
                     return;
                 }

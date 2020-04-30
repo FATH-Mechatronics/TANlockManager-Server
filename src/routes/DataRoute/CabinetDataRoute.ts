@@ -23,7 +23,7 @@ export default class CabinetDataRoute implements IRoute {
                 }
                 let list;
                 if(req.query.row !== undefined){
-                    let rid = Number.parseInt(req.query.row);
+                    let rid = Number.parseInt(req.query.row as string);
                     list = cabinetstore.getCabinetsOfRow(rid);
                 }else{
                     list = cabinetstore.getCabinets();

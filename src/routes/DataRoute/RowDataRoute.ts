@@ -22,7 +22,7 @@ export default class RowDataRoute implements IRoute {
                 }
                 let list;
                 if (req.query.cage !== undefined) {
-                    let cid = Number.parseInt(req.query.cage);
+                    let cid = Number.parseInt(req.query.cage as string);
                     list = rowstore.getRowsOfCage(cid);
                 } else {
                     list = rowstore.getRows();

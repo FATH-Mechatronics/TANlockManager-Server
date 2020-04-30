@@ -400,7 +400,7 @@ export default class LockDataRoute implements IRoute {
                 }
                 const id = Number.parseInt(req.params.id);
 
-                const tan = new Tan(req.body);
+                const tan:Tan = new Tan(req.body);
 
                 const lock = lockstore.findLockById(id);
                 if (lock != null) {
@@ -418,6 +418,22 @@ export default class LockDataRoute implements IRoute {
                 }
                 server.tanHandler.createTan(tan, pin)
                     .then(result => {
+
+                        server.emitWS("logEvent", logstore.addLog(lock as TanLock, `🔢 TAN Created By: ${user.user} Identifyer: ${tan.user} Note: ${tan.note} TTL: ${tan.ttl}`));
+                        //CABINET LOGGING
+                        const cabinetLog: CabinetLogEntry = new CabinetLogEntry({
+                            lock_id: (lock as TanLock).id,
+                            lock_name: (lock as TanLock).name,
+                            time: new Date().getTime(),
+                            type: ExtendedLoggerType.TYPESYSTEM,
+                            event: 'TAN',
+                            value: `🔢 Created By: ${user.user} Identifyer: ${tan.user} Note: ${tan.note} TTL: ${tan.ttl}`
+                        });
+
+                        ExtendedLogger.appendLog(lock as TanLock, cabinetLog);
+                        server.emitWS("cabinetLog", cabinetLog);
+
+
                         res.status(200).send('{"ok": true}').end();
                     })
                     .catch(err => {
@@ -453,6 +469,21 @@ export default class LockDataRoute implements IRoute {
                 }
                 server.tanHandler.removeTan(tan)
                     .then(result => {
+                        server.emitWS("logEvent", logstore.addLog(lock as TanLock, `🔢 TAN Deleted By: ${user.user} Identifyer: ${tan.user} Note: ${tan.note} TTL: ${tan.ttl}`));
+                        //CABINET LOGGING
+                        const cabinetLog: CabinetLogEntry = new CabinetLogEntry({
+                            lock_id: (lock as TanLock).id,
+                            lock_name: (lock as TanLock).name,
+                            time: new Date().getTime(),
+                            type: ExtendedLoggerType.TYPESYSTEM,
+                            event: 'TAN',
+                            value: `🔢 Deleted By: ${user.user} Identifyer: ${tan.user} Note: ${tan.note} TTL: ${tan.ttl}`
+                        });
+
+                        ExtendedLogger.appendLog(lock as TanLock, cabinetLog);
+                        server.emitWS("cabinetLog", cabinetLog);
+
+
                         res.status(200).send('{"ok": true}').end();
                     })
                     .catch(err => {

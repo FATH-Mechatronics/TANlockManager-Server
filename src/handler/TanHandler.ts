@@ -1,7 +1,12 @@
 import RestServer from "../server/RestServer";
 import TanStore from "../data/DataStores/TanStore";
 import Tan from "../model/Tan";
-import { AxiosStatic } from "axios";
+import {AxiosStatic} from "axios";
+import TanLock from "../model/TanLock";
+import CabinetLogEntry from "../model/CabinetLogEntry";
+import ExtendedLoggerType from "../model/ExtendedLoggerType";
+import ExtendedLogger from "../data/ExtendedLogger";
+import LogStore from "../data/DataStores/LogStore";
 
 const CHECK_TIME = 10_000;
 
@@ -12,9 +17,11 @@ export default class TanHandler {
 
     private timeout: any;
     private tanStore: TanStore;
+    private logStore: LogStore;
 
     constructor() {
         this.tanStore = TanStore.getInstance();
+        this.logStore = LogStore.getInstance();
     }
 
     public static getInstance(): TanHandler {
@@ -32,7 +39,7 @@ export default class TanHandler {
                     resolve(tan);
                 })
                 .catch(err => {
-                    console.error("Create ERR",err);
+                    console.error("Create ERR", err);
                     reject(err);
                 });
         });
@@ -55,13 +62,22 @@ export default class TanHandler {
     private cleanupTans() {
         this.tanStore.getTans().forEach((tan: Tan) => {
             if (tan.ttl <= new Date().getTime()) {
-                this.axios.get(tan.lock.getBaseUrl() + `/user/delete/${tan.user}`)
-                    .then(res => {
-                        this.tanStore.deleteTan(tan);
+                this.removeTan(tan)
+                    .then(() => {
+                        this.server.emitWS("logEvent", this.logStore.addLog(tan.lock, `🔢 TAN Reached EOL and was Deleted! Identifyer: ${tan.user} Note: ${tan.note}`));
+                        //CABINET LOGGING
+                        const cabinetLog: CabinetLogEntry = new CabinetLogEntry({
+                            lock_id: tan.lock.id,
+                            lock_name: tan.lock.name,
+                            time: new Date().getTime(),
+                            type: ExtendedLoggerType.TYPESYSTEM,
+                            event: 'TAN',
+                            value: `🔢🔢 TAN Reached EOL and was Deleted! Identifyer: ${tan.user} Note: ${tan.note} TTL: ${tan.ttl}`
+                        });
+
+                        ExtendedLogger.appendLog(tan.lock, cabinetLog);
+                        this.server.emitWS("cabinetLog", cabinetLog);
                     })
-                    .catch(err => {
-                        console.error("unable to delete tan from lock", tan);
-                    });
             }
         });
 
@@ -70,7 +86,9 @@ export default class TanHandler {
             this.timeout = null;
         }
 
-        this.timeout = setTimeout(()=>{this.cleanupTans();}, CHECK_TIME);
+        this.timeout = setTimeout(() => {
+            this.cleanupTans();
+        }, CHECK_TIME);
     }
 
     public init(pluginConfig: any) {

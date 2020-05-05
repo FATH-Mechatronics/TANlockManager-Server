@@ -269,12 +269,14 @@ export default class RestServer {
             },
             disconnect: (socket) => {
                 console.log("Client Disconnected");
-                const index = this.wsclients.findIndex(i => i.user.jti == socket.user.jti);
-                if (index >= 0) {
-                    this.wsclients.splice(index);
-                    console.log("REMOVED USER " + index);
-                } else {
-                    console.log("NO USER FOUND WITH TOKEN");
+                if(socket.user !== undefined) {
+                    const index = this.wsclients.findIndex(i => i.user.jti == socket.user.jti);
+                    if (index >= 0) {
+                        this.wsclients.splice(index);
+                        console.log("REMOVED USER " + index);
+                    } else {
+                        console.log("NO USER FOUND WITH TOKEN");
+                    }
                 }
             }
         });

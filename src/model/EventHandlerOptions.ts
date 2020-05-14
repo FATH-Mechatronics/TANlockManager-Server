@@ -2,6 +2,13 @@ import TanLock from "./TanLock";
 import Cabinet from "./Cabinet";
 import Cage from "./Cage";
 import Row from "./Row";
+import CabinetStore from "../data/DataStores/CabinetStore";
+import RowStore from "../data/DataStores/RowStore";
+import CageStore from "../data/DataStores/CageStore";
+
+const cabinetstore = CabinetStore.getInstance();
+const rowstore = RowStore.getInstance();
+const cagestore = CageStore.getInstance();
 
 export default class EventHandlerOptions {
     eventId: number | string;
@@ -17,5 +24,24 @@ export default class EventHandlerOptions {
         this.event = "generic";
         this.eventId = "generic";
         this.timestamp = new Date().getTime();
+    }
+
+    public static generate(tanlock: TanLock){
+        const event = new EventHandlerOptions();
+
+        event.remoteAddress = tanlock.ip
+        //FETCH LOCK TreeHirarchie
+        event.tanlock = tanlock
+        if (event.tanlock != null) {
+            event.cabinet = cabinetstore.findCabinetByLock(event.tanlock);
+        }
+        if (event.cabinet != null) {
+            event.row = rowstore.findRowById(event.cabinet.row_id);
+        }
+        if (event.row != null) {
+            event.cage = cagestore.findCageById(event.row.cage_id);
+        }
+
+        return event;
     }
 }

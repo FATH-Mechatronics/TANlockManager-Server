@@ -15,6 +15,7 @@ import LockEventHandler from "../../handler/LockEventHandler";
 import CabinetLogEntry from "../../model/CabinetLogEntry";
 import ExtendedLoggerType from "../../model/ExtendedLoggerType";
 import ExtendedLogger from "../../data/ExtendedLogger";
+import EventHandlerOptions from "../../model/EventHandlerOptions";
 
 const lockstore: LockStore = LockStore.getInstance();
 const logstore: LogStore = LogStore.getInstance();
@@ -252,6 +253,13 @@ export default class LockDataRoute implements IRoute {
 
                                 ExtendedLogger.appendLog(lock, cabinetLog);
                                 server.emitWS("cabinetLog", cabinetLog);
+                                // PLUGIN HANDLING
+                                if (server.pluginHandler) {
+                                    const extdEvent = EventHandlerOptions.generate(lock);
+                                    extdEvent.eventId = cabinetLog.event;
+                                    extdEvent.event = cabinetLog.value;
+                                    server.pluginHandler.onEvent("cabinetLog", extdEvent);
+                                }
                             })
                             .catch((reason) => {
                                 let newLock = lockstore.updateLockState(lock, "error");

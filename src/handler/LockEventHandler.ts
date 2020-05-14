@@ -222,6 +222,14 @@ export default class LockEventHandler {
                             value: logPayload
                         });
 
+                        // PLUGIN HANDLING
+                        if (this.config.server.pluginHandler) {
+                            const extdEvent = EventHandlerOptions.generate(lock);
+                            extdEvent.eventId = cabinetLog.event;
+                            extdEvent.event = cabinetLog.value;
+                            this.config.server.pluginHandler.onEvent("cabinetLog", extdEvent);
+                        }
+
                         ExtendedLogger.appendLog(lock, cabinetLog);
                         this.config.server.emitWS("cabinetLog", cabinetLog);
                     }

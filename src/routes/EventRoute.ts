@@ -47,34 +47,27 @@ export default class EventRoute implements IRoute {
     }
 
     private handleEvent(req){
-        const event = new EventHandlerOptions();
 
-        if(req.params.eventId == undefined){
-            event.eventId = TanLockEvent.GENERIC;
-            event.event = TanLockEvent.GENERIC;
-        }else {
-            event.eventId = Number.parseInt(req.params.eventId);
-            if (Number.isNaN(event.eventId)) {
-                event.eventId = req.params.eventId;
+        let remoteAddress = EventRoute.getRemoteIp(req);
+        let tanlock = lockstore.findLockByIp(remoteAddress);
+
+        if(tanlock != null) {
+            const event = EventHandlerOptions.generate(tanlock);
+
+            if (req.params.eventId == undefined) {
+                event.eventId = TanLockEvent.GENERIC;
+                event.event = TanLockEvent.GENERIC;
+            } else {
+                event.eventId = Number.parseInt(req.params.eventId);
+                if (Number.isNaN(event.eventId)) {
+                    event.eventId = req.params.eventId;
+                }
             }
-        }
 
-        event.remoteAddress = EventRoute.getRemoteIp(req);
-        //FETCH LOCK TreeHirarchie
-        event.tanlock = lockstore.findLockByIp(event.remoteAddress);
-        if (event.tanlock != null) {
-            event.cabinet = cabinetstore.findCabinetByLock(event.tanlock);
-        }
-        if (event.cabinet != null) {
-            event.row = rowstore.findRowById(event.cabinet.row_id);
-        }
-        if (event.row != null) {
-            event.cage = cagestore.findCageById(event.row.cage_id);
-        }
+            if (process.env.VERBOSE == "true")
+                console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
 
-        if (process.env.VERBOSE == "true")
-            console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
-
-        LockEventHandler.getInstance().handle(event, req.body, req);
+            LockEventHandler.getInstance().handle(event, req.body, req);
+        }
     }
 };

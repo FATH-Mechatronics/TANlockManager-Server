@@ -225,8 +225,11 @@ export default class RestServer {
                 case ExtendedLoggerType.TYPESENSORUPDATE:
                     permission = `lock_${data.lock_id}#${Permission.SENSOR_LOCK}`;
                     break;
+                case ExtendedLoggerType.TYPESYSTEM:
+                    permission = `lock_${data.lock_id}#${Permission.READ_LOG}`;
+                    break;
                 default:
-                    console.error("CabinetLog Missing PERM DEF FOR TYPE: " + data.type, data);
+                    console.error("CabinetLog Missing PERM DEF FOR TYPE: \'" + data.type+"\'", data);
             }
         } else if (data.lock_id != null) {
             console.error("WS EVENT MISSING CLASS", data);

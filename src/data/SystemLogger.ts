@@ -4,6 +4,7 @@ import DataStore from './Datastore';
 import Cabinet from '../model/Cabinet';
 import CabinetLogEntry from '../model/CabinetLogEntry';
 
+//TODO Currently Unused?
 export default class SystemLogger {
     public static TYPEUSER = "user";
     public static TYPETANLOCK = "tanlock";
@@ -14,7 +15,6 @@ export default class SystemLogger {
     public static ACTION_MODIFY = "modify";
     public static ACTION_OPEN = "open";
     public static ACTION_PREPAREOPEN = "prepareopen";
-    public static ACTION_
 
     public static BASEDIR = "systemlog";
 

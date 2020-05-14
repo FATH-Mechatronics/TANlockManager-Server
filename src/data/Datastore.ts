@@ -53,7 +53,7 @@ export default class DataStore {
     private static instance: DataStore;
 
     private static defaults = {
-        version: 1,
+        version: 2,
         config: [
             { name: "selfSignedCert", value: false },
             { name: "managementSlave", value: false },
@@ -68,9 +68,12 @@ export default class DataStore {
             { name: "monitoringTemperatureHighValue", value: 35 },
             { name: "monitoringHumidityLowValue", value: 8 },
             { name: "monitoringHumidityHighValue", value: 90 },
+            //Version 2
+            { name: "openDefaultMethod", value: "prepareopen"},
+            { name: "openDefaultPin", value: ""}
         ],
-        cages: [],
-        cabinets: []
+        // cages: [], Removed in V2
+        // cabinets: [] Removed in V2
     };
 
     public static getInstance(): DataStore {
@@ -87,11 +90,25 @@ export default class DataStore {
             .value();
         if (current < DataStore.defaults.version) {
             console.warn(`Database need Patch from ${current} to ${DataStore.defaults.version}`);
+            if(current < 2){ // Patches for Version 2
+                let openDefaultMethod = DataStore.defaults.config.find(c => c.name === "openDefaultMethod")
+                if(openDefaultMethod) {
+                    this.setConfig(openDefaultMethod.name, openDefaultMethod.value)
+                }
+                let openDefaultPin = DataStore.defaults.config.find(c => c.name === "openDefaultPin")
+                if(openDefaultPin) {
+                    this.setConfig(openDefaultPin.name, openDefaultPin.value)
+                }
+                this.db.unset("cages").write();
+                this.db.unset("cabinets").write();
+                this.db.set("version", 2).write();
+                console.log("Patched DB to V2");
+            }
             console.log(this.db.value());
         }
     }
 
-    public setConfig(name: string, value: string): any {
+    public setConfig(name: string, value: string|boolean|number): any {
         if (this.getConfig(name) !== null) {
             return this.db.get("config")
                 .find({ name })

@@ -228,7 +228,7 @@ export default class CameraHandler {
             `m${CameraHandler.leadingZero(date.getMonth() + 1)}`, `d${CameraHandler.leadingZero(date.getDate())}`);
     }
 
-    // ts_{timeReadable}_{timeStamp}_{state}.jpg
+    // ts{timeReadable}_{timeStamp}_{state}.jpg
     public static getImageFileName(date: Date, state: string) {
         return `ts${CameraHandler.leadingZero(date.getHours())}_${CameraHandler.leadingZero(date.getMinutes())}_${date.getTime()}_${state}.jpg`
     }

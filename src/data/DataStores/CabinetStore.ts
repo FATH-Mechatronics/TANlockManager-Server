@@ -73,7 +73,7 @@ export default class CabinetStore {
 
     public findCabinetByLock(lock: TanLock) {
         return new Cabinet(this.db.get("cabinets")
-            .find(c => c.frontLock === lock.ip || c.backLock === lock.ip)
+            .find(c => c.frontLock === lock.id || c.backLock === lock.id)
             .value());
     }
 

@@ -12,6 +12,7 @@ const cagestore = CageStore.getInstance();
 
 export default class EventHandlerOptions {
     eventId: number | string;
+    eventMessage: null | string;
     event: string;
     remoteAddress: string;
     tanlock: TanLock | null;
@@ -23,6 +24,7 @@ export default class EventHandlerOptions {
     constructor() {
         this.event = "generic";
         this.eventId = "generic";
+        this.eventMessage = null;
         this.timestamp = new Date().getTime();
     }
 

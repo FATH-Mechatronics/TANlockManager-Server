@@ -226,7 +226,8 @@ export default class LockEventHandler {
                         if (this.config.server.pluginHandler) {
                             const extdEvent = EventHandlerOptions.generate(lock);
                             extdEvent.eventId = cabinetLog.event;
-                            extdEvent.event = cabinetLog.value;
+                            extdEvent.event = cabinetLog.event;
+                            extdEvent.eventMessage = cabinetLog.value;
                             this.config.server.pluginHandler.onEvent("cabinetLog", extdEvent);
                         }
 

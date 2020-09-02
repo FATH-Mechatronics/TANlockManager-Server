@@ -255,7 +255,7 @@ export default class LockDataRoute implements IRoute {
                                 server.emitWS("cabinetLog", cabinetLog);
                                 // PLUGIN HANDLING
                                 if (server.pluginHandler) {
-                                    const extdEvent = EventHandlerOptions.generate(lock);
+                                    const extdEvent = EventHandlerOptions.generate(lock, lock.ip);
                                     extdEvent.eventId = cabinetLog.event;
                                     extdEvent.event = cabinetLog.value;
                                     server.pluginHandler.onEvent("cabinetLog", extdEvent);

@@ -224,7 +224,7 @@ export default class LockEventHandler {
 
                         // PLUGIN HANDLING
                         if (this.config.server.pluginHandler) {
-                            const extdEvent = EventHandlerOptions.generate(lock);
+                            const extdEvent = EventHandlerOptions.generate(lock, lock.ip);
                             extdEvent.eventId = cabinetLog.event;
                             extdEvent.event = cabinetLog.event;
                             extdEvent.eventMessage = cabinetLog.value;

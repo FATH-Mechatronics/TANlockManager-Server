@@ -28,10 +28,10 @@ export default class EventHandlerOptions {
         this.timestamp = new Date().getTime();
     }
 
-    public static generate(tanlock: TanLock){
+    public static generate(tanlock: TanLock|null, remoteAddress: string){
         const event = new EventHandlerOptions();
 
-        event.remoteAddress = tanlock.ip
+        event.remoteAddress = remoteAddress
         //FETCH LOCK TreeHirarchie
         event.tanlock = tanlock
         if (event.tanlock != null) {

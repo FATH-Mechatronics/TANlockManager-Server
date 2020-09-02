@@ -51,8 +51,7 @@ export default class EventRoute implements IRoute {
         let remoteAddress = EventRoute.getRemoteIp(req);
         let tanlock = lockstore.findLockByIp(remoteAddress);
 
-        if(tanlock != null) {
-            const event = EventHandlerOptions.generate(tanlock);
+            const event = EventHandlerOptions.generate(tanlock, remoteAddress);
 
             if (req.params.eventId == undefined) {
                 event.eventId = TanLockEvent.GENERIC;
@@ -68,6 +67,5 @@ export default class EventRoute implements IRoute {
                 console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
 
             LockEventHandler.getInstance().handle(event, req.body, req);
-        }
     }
 };

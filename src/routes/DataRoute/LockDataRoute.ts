@@ -379,10 +379,10 @@ export default class LockDataRoute implements IRoute {
                 const imgDir = path.join(DataStore.getBasePath(), CameraHandler.getFolderPath(tanlock, date));
                 const imgPath = path.join(imgDir, CameraHandler.getImageFileName(date, state));
                 console.log(imgPath);
-                fs.exists(imgPath, exists => {
-                    if (exists) {
+                fs.access(imgPath, fs.constants.R_OK, (err) => {
+                    if(!err){
                         res.sendFile(imgPath);
-                    } else {
+                    }else{
                         res.status(404).end();
                     }
                 });

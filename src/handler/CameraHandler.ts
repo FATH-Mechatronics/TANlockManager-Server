@@ -152,6 +152,7 @@ export default class CameraHandler {
                     } else {
                         console.error(err);
                     }
+                    fs.close(fd, (err) => {});
                 });
             } else {
                 console.error(err);

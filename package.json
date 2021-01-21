@@ -30,7 +30,7 @@
     "jsonwebtoken": "^8.5.1",
     "lowdb": "^1.0.0",
     "mkcert-geek-fork": "^1.2.1",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "socketio-auth": "^0.1.1",
     "uuid": "^3.4.0"
   }

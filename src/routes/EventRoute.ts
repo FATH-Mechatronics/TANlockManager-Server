@@ -9,7 +9,7 @@ const lockstore: LockStore = LockStore.getInstance();
 
 export default class EventRoute implements IRoute {
     public publicURLs(): string[] {
-        return ["/event/?.*", "/standard-event/?.*"];
+        return ["/event/?.*", "/standard\-event/?"];
     }
 
     public init(server: RestServer): void {
@@ -68,7 +68,7 @@ export default class EventRoute implements IRoute {
         // TODO PARSE New Standard Events to old Events
 
         if (process.env.VERBOSE == "true")
-            console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
+            console.log(new Date().toLocaleTimeString() + " [STANDARD] " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
 
         LockEventHandler.getInstance().handle(event, req.body, req, true);
     }

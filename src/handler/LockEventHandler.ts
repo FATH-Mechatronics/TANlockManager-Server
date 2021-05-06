@@ -29,7 +29,7 @@ export default class LockEventHandler {
         this.config = config;
     }
 
-    public handle(event: EventHandlerOptions, body: any, req) {
+    public handle(event: EventHandlerOptions, body: any, req, isNewStandard?: boolean) {
         return new Promise<EventHandlerOptions>((resolve, reject) => {
             let evalInfoPage = false;
             if (event.tanlock === null) {
@@ -207,6 +207,9 @@ export default class LockEventHandler {
 
                     this.config.server.emitWS("tanlockEvent", lock);
 
+                    /**
+                     * TODO: Read correct user or extract it directly from the Event ;D
+                     */
                     //HAS AUTHED USER
                     if (response.data.user !== "") {
                         let logPayload = `👮 AuthedUser: ${response.data.user}`;

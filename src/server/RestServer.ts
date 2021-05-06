@@ -142,6 +142,11 @@ export default class RestServer {
                     this.ios = require('socket.io')(this.server);
                     this.configureWS();
 
+                    if(this.ios == undefined){
+                        console.error("No Way To Instatiate WebSocket")
+                        return;
+                    }
+
                     const pluginConfig: PluginConfig =
                         new PluginConfig(axios, this.ios, BaseDirProvider.getBasePath(), this);
                     this.jwtHandler = JWTHandler.getInstance();

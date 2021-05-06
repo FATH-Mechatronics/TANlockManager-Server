@@ -1,6 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import CertHandling from "./CertHandling";
-import uuid = require("uuid/v1");
+import {v1 as uuid } from "uuid";
 import AuthUser from "../model/AuthUser";
 
 export default class JWTHandler {

@@ -47,9 +47,10 @@ export default class EventRoute implements IRoute {
             event.eventId = TanLockEvent.GENERIC;
             event.event = TanLockEvent.GENERIC;
         } else {
-            event.eventId = Number.parseInt(req.params.eventId);
             if (Number.isNaN(event.eventId)) {
                 event.eventId = req.params.eventId;
+            } else {
+                event.eventId = Number.parseInt(req.params.eventId);
             }
         }
 
@@ -65,7 +66,10 @@ export default class EventRoute implements IRoute {
 
         const event = EventHandlerOptions.generate(tanlock, remoteAddress);
 
-        // TODO PARSE New Standard Events to old Events
+        const evntBody = req.body;
+        const eventHandler = TanLockEvent.STD_EVENTS_ENUM[evntBody.event];
+
+        event.event = eventHandler(evntBody.data);
 
         if (process.env.VERBOSE == "true")
             console.log(new Date().toLocaleTimeString() + " [STANDARD] " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));

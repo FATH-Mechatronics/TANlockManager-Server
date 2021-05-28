@@ -29,7 +29,7 @@ export default class LockEventHandler {
         this.config = config;
     }
 
-    public handle(event: EventHandlerOptions, body: any, req, isNewStandard?: boolean) {
+    public handle(event: EventHandlerOptions, body: any, req, eventFilled: boolean = false) {
         return new Promise<EventHandlerOptions>((resolve, reject) => {
             let evalInfoPage = false;
             if (event.tanlock === null) {
@@ -39,73 +39,80 @@ export default class LockEventHandler {
 
             event.tanlock = lockstore.updateLockHeartBeat(event.remoteAddress);
 
-            switch (event.eventId) {
-                case "generic":
-                    resolve(event);
-                    return;
-                case "heartbeat":
-                    event.event = TanLockEvent.HEARTBEAT;
-                    break;
-                case 2:
-                    event.event = TanLockEvent.BOOT;
-                    break;
-                case 3:
-                    event.event = TanLockEvent.PINENTERING;
-                    break;
-                case 4:
-                    event.event = TanLockEvent.PINTIMEOUT;
-                    break;
-                case 5:
-                    event.event = TanLockEvent.PINERROR;
-                    break;
-                case 6:
-                    event.event = TanLockEvent.UNLOCKING;
-                    break;
-                case 7:
-                    event.event = TanLockEvent.LOCKING;
-                    break;
-                case 8:
-                    event.event = TanLockEvent.OPENING;
-                    break;
-                case 9:
-                    event.event = TanLockEvent.CLOSING;
-                    break;
-                case 10:
-                    event.event = TanLockEvent.S1_OPEN;
-                    event.tanlock.door_1 = false;
-                    event.tanlock.useDoor_1 = true;
-                    break;
-                case 11:
-                    event.event = TanLockEvent.S1_CLOSE;
-                    event.tanlock.door_1 = true;
-                    event.tanlock.useDoor_1 = true;
-                    break;
-                case 12:
-                    event.event = TanLockEvent.S2_OPEN;
-                    event.tanlock.door_2 = false;
-                    event.tanlock.useDoor_2 = true;
-                    break;
-                case 13:
-                    event.event = TanLockEvent.S2_CLOSE;
-                    event.tanlock.door_2 = true;
-                    event.tanlock.useDoor_2 = true;
-                    break;
-                case 14:
-                    event.event = TanLockEvent.SUCCESS_LDAP;
+            if (!eventFilled) {
+                switch (event.eventId) {
+                    case "generic":
+                        resolve(event);
+                        return;
+                    case "heartbeat":
+                        event.event = TanLockEvent.HEARTBEAT;
+                        break;
+                    case 2:
+                        event.event = TanLockEvent.BOOT;
+                        break;
+                    case 3:
+                        event.event = TanLockEvent.PINENTERING;
+                        break;
+                    case 4:
+                        event.event = TanLockEvent.PINTIMEOUT;
+                        break;
+                    case 5:
+                        event.event = TanLockEvent.PINERROR;
+                        break;
+                    case 6:
+                        event.event = TanLockEvent.UNLOCKING;
+                        break;
+                    case 7:
+                        event.event = TanLockEvent.LOCKING;
+                        break;
+                    case 8:
+                        event.event = TanLockEvent.OPENING;
+                        break;
+                    case 9:
+                        event.event = TanLockEvent.CLOSING;
+                        break;
+                    case 10:
+                        event.event = TanLockEvent.S1_OPEN;
+                        event.tanlock.door_1 = false;
+                        event.tanlock.useDoor_1 = true;
+                        break;
+                    case 11:
+                        event.event = TanLockEvent.S1_CLOSE;
+                        event.tanlock.door_1 = true;
+                        event.tanlock.useDoor_1 = true;
+                        break;
+                    case 12:
+                        event.event = TanLockEvent.S2_OPEN;
+                        event.tanlock.door_2 = false;
+                        event.tanlock.useDoor_2 = true;
+                        break;
+                    case 13:
+                        event.event = TanLockEvent.S2_CLOSE;
+                        event.tanlock.door_2 = true;
+                        event.tanlock.useDoor_2 = true;
+                        break;
+                    case 14:
+                        event.event = TanLockEvent.SUCCESS_LDAP;
+                        break;
+                    case 15:
+                        event.event = TanLockEvent.SUCCESS_LOCAL;
+                        break;
+                    case 16:
+                        event.event = TanLockEvent.SUCCESS_MASTER;
+                        break;
+                    default:
+                        event.event = `unknown_${event.eventId}`;
+                        console.error(`Unnknown event ${event.eventId}`);
+                        break;
+                }
+            }
+
+            // Define when to load infoPage
+            switch (event.event) {
+                case TanLockEvent.SUCCESS_LOCAL:
+                case TanLockEvent.SUCCESS_LDAP:
+                case TanLockEvent.SUCCESS_MASTER:
                     evalInfoPage = true;
-                    break;
-                case 15:
-                    event.event = TanLockEvent.SUCCESS_LOCAL;
-                    evalInfoPage = true;
-                    break;
-                case 16:
-                    event.event = TanLockEvent.SUCCESS_MASTER;
-                    evalInfoPage = true;
-                    break;
-                default:
-                    event.event = `unknown_${event.eventId}`;
-                    console.error(`Unnknown event ${event.eventId}`);
-                    break;
             }
 
             // DOOR EVENTS

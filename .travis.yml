@@ -13,6 +13,7 @@ env:
   - NSIS_IMAGE=cs8898/nsis:latest
 
 script:
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - yarn install
 - yarn build
 - mkdir -p ./dist_install/bin

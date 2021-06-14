@@ -73,23 +73,15 @@ export default class LockEventHandler {
                         break;
                     case 10:
                         event.event = TanLockEvent.S1_OPEN;
-                        event.tanlock.door_1 = false;
-                        event.tanlock.useDoor_1 = true;
                         break;
                     case 11:
                         event.event = TanLockEvent.S1_CLOSE;
-                        event.tanlock.door_1 = true;
-                        event.tanlock.useDoor_1 = true;
                         break;
                     case 12:
                         event.event = TanLockEvent.S2_OPEN;
-                        event.tanlock.door_2 = false;
-                        event.tanlock.useDoor_2 = true;
                         break;
                     case 13:
                         event.event = TanLockEvent.S2_CLOSE;
-                        event.tanlock.door_2 = true;
-                        event.tanlock.useDoor_2 = true;
                         break;
                     case 14:
                         event.event = TanLockEvent.SUCCESS_LDAP;
@@ -105,6 +97,26 @@ export default class LockEventHandler {
                         console.error(`Unnknown event ${event.eventId}`);
                         break;
                 }
+            }
+
+            // Handle DoorContact Usage
+            switch (event.event) {
+                case TanLockEvent.S1_OPEN:
+                    event.tanlock.door_1 = false;
+                    event.tanlock.useDoor_1 = true;
+                    break;
+                case TanLockEvent.S1_CLOSE:
+                    event.tanlock.door_1 = true;
+                    event.tanlock.useDoor_1 = true;
+                    break;
+                case TanLockEvent.S2_OPEN:
+                    event.tanlock.door_2 = false;
+                    event.tanlock.useDoor_2 = true;
+                    break;
+                case TanLockEvent.S2_CLOSE:
+                    event.tanlock.door_2 = true;
+                    event.tanlock.useDoor_2 = true;
+                    break;
             }
 
             // Define when to load infoPage

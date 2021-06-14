@@ -139,7 +139,13 @@ export default class RestServer {
                     };
                     this.server = http.createServer(certOptions, this.app);
 
-                    this.ios = require('socket.io')(this.server);
+                    this.ios = require('socket.io')(this.server, {
+                        cors: {
+                            origin: "*",
+                            credentials: false,
+                            methods: ["GET", "POST"]
+                        }
+                    });
                     this.configureWS();
 
                     if(this.ios == undefined){

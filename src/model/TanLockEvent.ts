@@ -42,7 +42,7 @@ export default class TanLockEvent {
         },
         HAL_HANDLE: (data) => {
             const handleState = data[0];
-            return handleState ? TanLockEvent.CLOSING : TanLockEvent.OPENING;
+            return handleState ? TanLockEvent.OPENING : TanLockEvent.CLOSING;
         },
         EXT_CHANGED: (data) => {
             const id = data[0];

@@ -33,4 +33,47 @@ export default class TanLockEvent {
     public static SUCCESS_LOCAL = "successLOCAL_AUTH";
     // 16
     public static SUCCESS_MASTER = "successMASTER_AUTH";
+
+
+    public static STD_EVENTS_ENUM = {
+        HAL_LOCKED: (data) => {
+            const lockState = data[0];
+            return lockState ? TanLockEvent.LOCKING : TanLockEvent.UNLOCKING;
+        },
+        HAL_HANDLE: (data) => {
+            const handleState = data[0];
+            return handleState ? TanLockEvent.OPENING : TanLockEvent.CLOSING;
+        },
+        EXT_CHANGED: (data) => {
+            const id = data[0];
+            const state = data[1];
+            return `dc${id + 1}_${state ? "close" : "open"}`;
+        },
+        RELAIS_CHANGED: (data) => {
+            const id = data[0];
+            const state = data[1];
+            return `r${id + 1}_${state ? "on" : "off"}`;
+        },
+        STARTUP: (data) => {
+            return TanLockEvent.BOOT;
+        },
+        AUTH: (data) => {
+            return TanLockEvent.SUCCESS_LOCAL;
+        },
+        MEDIUM_PRESENTED: () => {
+            return TanLockEvent.GENERIC;
+        },
+        MEDIUM_INPUT: () => {
+            return TanLockEvent.GENERIC;
+        },
+        LOCK_NOT_OPENED: () => {
+            return `jammed`;
+        },
+        UPDATER: () => {
+            return TanLockEvent.GENERIC;
+        },
+        UNKNOWN: () => {
+            return TanLockEvent.GENERIC;
+        }
+    }
 }

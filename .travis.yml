@@ -13,16 +13,14 @@ env:
   - NSIS_IMAGE=cs8898/nsis:latest
 
 script:
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - yarn install
 - yarn build
 - mkdir -p ./dist_install/bin
-- cp -r ./dist ./dist_install/bin && cp -r ./node_modules ./dist_install/bin && cp
-  ./package.json ./dist_install/bin && cp ./src/favicon.ico ./dist_install/bin
-- mkdir -p node_download && wget -q $NODE_DOWNLOAD_URL -O ./node_download/node_rel.zip
-  && cd ./node_download && unzip node_rel.zip 1>/dev/null && cd $TRAVIS_BUILD_DIR
+- cp -r ./dist ./dist_install/bin && cp -r ./node_modules ./dist_install/bin && cp ./package.json ./dist_install/bin && cp ./src/favicon.ico ./dist_install/bin
+- mkdir -p node_download && wget -q $NODE_DOWNLOAD_URL -O ./node_download/node_rel.zip && cd ./node_download && unzip node_rel.zip 1>/dev/null && cd $TRAVIS_BUILD_DIR
 - cp ./node_download/node-*/node.exe ./dist_install/bin
-- docker run --rm -i -v $PWD:/tmp/build -u $(id -u $USER):$(id -g $USER) $NSIS_IMAGE
-  /tmp/build/nsis/nsis.nsi
+- docker run --rm -i -v $PWD:/tmp/build -u $(id -u $USER):$(id -g $USER) $NSIS_IMAGE /tmp/build/nsis/nsis.nsi
 
 before_deploy:
 - git config --local user.name "Travis CI"

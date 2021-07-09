@@ -47,15 +47,18 @@ export default class EventRoute implements IRoute {
             event.eventId = TanLockEvent.GENERIC;
             event.event = TanLockEvent.GENERIC;
         } else {
-            if (Number.isNaN(event.eventId)) {
+            const eventIdNum = Number.parseInt(req.params.eventId);
+            if (Number.isNaN(eventIdNum)) {
                 event.eventId = req.params.eventId;
             } else {
-                event.eventId = Number.parseInt(req.params.eventId);
+                event.eventId = eventIdNum;
             }
         }
 
-        if (process.env.VERBOSE == "true")
+        if (process.env.VERBOSE == "true") {
+            console.log("New Set EventID is", event.eventId);
             console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
+        }
 
         LockEventHandler.getInstance().handle(event, req.body, req);
     }

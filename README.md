@@ -2,7 +2,7 @@
 
 > REST Server Component for the TANlock Manager
 
-[![Build Status](https://travis-ci.org/FATH-Mechatronics/TANlockManager-Server.svg?branch=master)](https://travis-ci.org/FATH-Mechatronics/TANlockManager-Server)
+[![Build Status](https://travis-ci.com/FATH-Mechatronics/TANlockManager-Server.svg?branch=master)](https://travis-ci.com/FATH-Mechatronics/TANlockManager-Server)
 
 ## Build and Run
 

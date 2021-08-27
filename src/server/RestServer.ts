@@ -24,6 +24,7 @@ import ExtendedLoggerType from "../model/ExtendedLoggerType";
 import UiRoute from "../routes/UiRoute";
 import PluginConfig from "../model/PluginConfig";
 import LockEventHandler from "../handler/LockEventHandler";
+import StandardApiHelper from "../handler/StandardApiHelper";
 
 // const express = require("express");
 const http = require('httpolyglot');
@@ -49,6 +50,7 @@ export default class RestServer {
     pluginHandler: PluginHandler | undefined;
     cameraHandler: CameraHandler | undefined;
     sensorFetchHandler: SensorFetchHandler | undefined;
+    standardApiHelper: StandardApiHelper | undefined;
     tanHandler: TanHandler | undefined;
     lockEventHandler: LockEventHandler | undefined;
     axios: AxiosStatic = axios;
@@ -148,7 +150,7 @@ export default class RestServer {
                     });
                     this.configureWS();
 
-                    if(this.ios == undefined){
+                    if (this.ios == undefined) {
                         console.error("No Way To Instatiate WebSocket")
                         return;
                     }
@@ -160,6 +162,8 @@ export default class RestServer {
                     this.pluginHandler.init(pluginConfig);
                     this.cameraHandler = CameraHandler.getInstance();
                     this.cameraHandler.init(pluginConfig);
+                    this.standardApiHelper = StandardApiHelper.getInstance();
+                    this.standardApiHelper.init(pluginConfig)
                     this.tanHandler = TanHandler.getInstance();
                     this.tanHandler.init(pluginConfig);
                     this.sensorFetchHandler = SensorFetchHandler.getInstance();
@@ -240,12 +244,12 @@ export default class RestServer {
                     permission = `lock_${data.lock_id}#${Permission.READ_LOG}`;
                     break;
                 default:
-                    console.error("CabinetLog Missing PERM DEF FOR TYPE: \'" + data.type+"\'", data);
+                    console.error("CabinetLog Missing PERM DEF FOR TYPE: \'" + data.type + "\'", data);
             }
         } else if (data.lock_id != null) {
             console.error("WS EVENT MISSING CLASS", data);
             permission = `lock_${data.lock_id}#${Permission.READ_LOG}`;
-        } else if(data.tanlock.id != null) {
+        } else if (data.tanlock.id != null) {
             console.error("WS EVENT MISSING CLASS", data);
             permission = `lock_${data.tanlock.id}#${Permission.READ_LOCK}`;
         }
@@ -283,7 +287,7 @@ export default class RestServer {
             },
             disconnect: (socket) => {
                 console.log("Client Disconnected");
-                if(socket.user !== undefined) {
+                if (socket.user !== undefined) {
                     const index = this.wsclients.findIndex(i => i.user.jti == socket.user.jti);
                     if (index >= 0) {
                         this.wsclients.splice(index);

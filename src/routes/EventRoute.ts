@@ -4,6 +4,8 @@ import TanLockEvent from "../model/TanLockEvent";
 import IRoute from "./IRoute";
 import LockStore from "../data/DataStores/LockStore";
 import LockEventHandler from "../handler/LockEventHandler";
+import TanLock from "../model/TanLock";
+import StandardProvisionHandler from "../handler/StandardProvisionHandler";
 
 const lockstore: LockStore = LockStore.getInstance();
 
@@ -15,15 +17,15 @@ export default class EventRoute implements IRoute {
     public init(server: RestServer): void {
         server.app
             .all('/event', (req, res) => {
-                this.handleEvent(req);
+                EventRoute.handleEvent(req);
                 res.status(200).end();
             })
             .all('/event/:eventId', (req, res) => {
-                this.handleEvent(req);
+                EventRoute.handleEvent(req);
                 res.status(200).end();
             })
             .all('/standard-event', (req, res) => {
-                this.handleStandardEvent(req);
+                EventRoute.handleStandardEvent(req);
                 res.status(200).end();
             });
     }
@@ -36,10 +38,15 @@ export default class EventRoute implements IRoute {
         }
     }
 
-    private handleEvent(req) {
-
+    private static handleEvent(req) {
         let remoteAddress = EventRoute.getRemoteIp(req);
         let tanlock = lockstore.findLockByIp(remoteAddress);
+        /*if (tanlock) {
+            let res = lockstore.patchLock(tanlock.id, {software: "7x2"})
+            if (res instanceof TanLock) {
+                tanlock = res;
+            }
+        }*/
 
         const event = EventHandlerOptions.generate(tanlock, remoteAddress);
 
@@ -63,9 +70,17 @@ export default class EventRoute implements IRoute {
         LockEventHandler.getInstance().handle(event, req.body, req);
     }
 
-    private handleStandardEvent(req) {
+    private static handleStandardEvent(req) {
         let remoteAddress = EventRoute.getRemoteIp(req);
         let tanlock = lockstore.findLockByIp(remoteAddress);
+        if (tanlock) {
+            let res = lockstore.patchLock(tanlock.id, {software: "standard_0.0.1"})
+            if (res instanceof TanLock) {
+                tanlock = res;
+            }
+            StandardProvisionHandler.getInstance().provisionLock(tanlock);
+        }
+
 
         const event = EventHandlerOptions.generate(tanlock, remoteAddress);
 

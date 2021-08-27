@@ -9,9 +9,30 @@ export default class LockStore {
     private db;
     private static instance: LockStore;
     private static defaults = {
-        version: 1,
+        version: 2,
         tanlocks: []
     };
+
+    private patchDB() {
+        const current = this.db.get("version")
+            .value();
+        if (current < LockStore.defaults.version) {
+            console.warn(`Database need Patch from ${current} to ${LockStore.defaults.version}`);
+            if(current < 2) { // Patches for Version 2
+                let locks: TanLock[] = this.getAllLocks();
+
+                locks.forEach((lock:TanLock) => {
+                    this.db.get("tanlocks")
+                        .find({ 'id': lock.id })
+                        .set("software", "7x2")
+                        .write();
+                });
+
+                this.db.set("version", 2).write();
+                console.log("Patched DB to V2");
+            }
+        }
+    }
 
     public updateLockState(lock: TanLock, value: string, isEvent: boolean = false): TanLock {
         let state = "unknown";
@@ -175,6 +196,7 @@ export default class LockStore {
     public static getInstance(): LockStore {
         if (!LockStore.instance) {
             LockStore.instance = new LockStore();
+            LockStore.instance.patchDB();
         }
         return LockStore.instance;
     }

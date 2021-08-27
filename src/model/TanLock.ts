@@ -11,6 +11,8 @@ export default class TanLock {
     public useDoor_1: boolean;
     public door_2: boolean;
     public useDoor_2: boolean;
+    public software: string;
+    public provisioned: boolean;
 
     constructor(identity: any = null) {
         this.ip = "";
@@ -24,6 +26,8 @@ export default class TanLock {
         this.useDoor_1 = false;
         this.door_2 = false;
         this.useDoor_2 = false;
+        this.software = "7x2";
+        this.provisioned = false;
         if (identity != null) {
             Object.keys(identity).forEach((key) => {
                 this[key] = identity[key];
@@ -39,5 +43,9 @@ export default class TanLock {
 
     public getBaseUrl(rootFolder = ''): string {
         return `http${this.https ? 's' : ''}://${this.ip}${rootFolder.length > 0 ? rootFolder : ''}${this.apiKey.length > 0 ? '/' : ''}${this.apiKey}`;
+    }
+
+    public getLockUrl(): string {
+        return `http${this.https ? 's' : ''}://${this.ip}`;
     }
 }

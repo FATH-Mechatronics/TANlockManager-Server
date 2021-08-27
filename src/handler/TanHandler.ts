@@ -1,12 +1,13 @@
 import RestServer from "../server/RestServer";
 import TanStore from "../data/DataStores/TanStore";
 import Tan from "../model/Tan";
-import {AxiosStatic} from "axios";
+import {AxiosResponse, AxiosStatic} from "axios";
 import TanLock from "../model/TanLock";
 import CabinetLogEntry from "../model/CabinetLogEntry";
 import ExtendedLoggerType from "../model/ExtendedLoggerType";
 import ExtendedLogger from "../data/ExtendedLogger";
 import LogStore from "../data/DataStores/LogStore";
+import StandardApiHelper from "./StandardApiHelper";
 
 const CHECK_TIME = 10_000;
 
@@ -33,29 +34,42 @@ export default class TanHandler {
 
     public createTan(tan: Tan, pin: string) {
         return new Promise((resolve, reject) => {
-            this.axios.get(tan.lock.getBaseUrl() + `/user/create/${tan.user}/${pin}`)
-                .then(res => {
-                    this.tanStore.createTan(tan);
-                    resolve(tan);
-                })
+            let promise: Promise<any>;
+
+            if (tan.lock.software === "7x2") {
+                promise = this.axios.get(tan.lock.getBaseUrl() + `/user/create/${tan.user}/${pin}`)
+
+            } else {
+                promise = StandardApiHelper.getInstance().createPinInput(tan.lock, `${tan.user}${pin}`, 1)
+
+            }
+            promise.then(res => {
+                this.tanStore.createTan(tan);
+                resolve(tan);
+            })
                 .catch(err => {
                     console.error("Create ERR", err);
                     reject(err);
                 });
+
         });
     }
 
     public removeTan(tan: Tan) {
         return new Promise((resolve, reject) => {
-            this.axios.get(tan.lock.getBaseUrl() + `/user/delete/${tan.user}`)
-                .then(res => {
-                    this.tanStore.deleteTan(tan);
-                    resolve();
-                })
-                .catch(err => {
-                    console.error("unable to delete tan from lock", tan);
-                    reject();
-                });
+            let promise: Promise<any>;
+            if (tan.lock.software === "7x2") {
+                promise = this.axios.get(tan.lock.getBaseUrl() + `/user/delete/${tan.user}`)
+            } else {
+                promise = StandardApiHelper.getInstance().removePinInput(tan.lock, `${tan.user}${tan.pin}`, 1)
+            }
+            promise.then(res => {
+                this.tanStore.deleteTan(tan);
+                resolve();
+            }).catch(err => {
+                console.error("unable to delete tan from lock", tan);
+                reject();
+            });
         });
     }
 

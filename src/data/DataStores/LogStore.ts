@@ -1,7 +1,9 @@
 import EventHandlerOptions from "../../model/EventHandlerOptions";
 
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 import DataStore from "../Datastore";
 import LogEvent from "../../model/LogEvent";
@@ -30,8 +32,8 @@ export default class LogStore {
         return [];
     }
 
-    public addLog(event: EventHandlerOptions | TanLock, payload: string = "", updateLock: boolean = false): LogEvent | null {
-        let lock: TanLock | null = (event instanceof EventHandlerOptions ? event.tanlock : event);
+    public addLog(event: EventHandlerOptions | TanLock, payload = "", updateLock = false): LogEvent | null {
+        const lock: TanLock | null = (event instanceof EventHandlerOptions ? event.tanlock : event);
         if (lock == null)
             return null;
         if (updateLock)

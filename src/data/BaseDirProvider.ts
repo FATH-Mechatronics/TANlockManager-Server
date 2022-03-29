@@ -1,7 +1,7 @@
-const path = require('path');
-const fs = require('fs');
-const execSync = require('child_process').execSync;
-const process = require('process');
+import path from "path";
+import fs from "fs";
+import {execSync} from "child_process";
+import process from "process";
 
 export default class BaseDirProvider {
     public static basePath: string | null = null;
@@ -15,12 +15,14 @@ export default class BaseDirProvider {
                 try {
                     execSync(`mkdir "${path}"`);
                 } catch (e) {
+                    //ignore
                 }
                 break;
             case "linux":
                 try {
                     execSync(`mkdir -p "${path}"`);
                 } catch (e) {
+                    //ignore
                 }
                 break;
         }
@@ -31,7 +33,7 @@ export default class BaseDirProvider {
             const confPath = path.join(process.cwd(), "config.json");
             console.log("CONFIG PATH: " + confPath);
             try {
-                let conf = fs.readFileSync(confPath).toString("utf-8");
+                let conf:any = fs.readFileSync(confPath).toString("utf-8");
                 conf = JSON.parse(conf);
                 BaseDirProvider.basePath = conf.basePath;
                 if (BaseDirProvider.basePath == undefined) {
@@ -45,10 +47,10 @@ export default class BaseDirProvider {
         if (BaseDirProvider.basePath === "") {
             switch (process.platform) {
                 case "win32":
-                    BaseDirProvider.basePath = path.join(process.env.AppData, "tanlockmanager");
+                    BaseDirProvider.basePath = path.join(process.env.AppData!, "tanlockmanager");
                     break;
                 case "linux":
-                    BaseDirProvider.basePath = path.join(process.env.HOME, ".config", "tanlockmanager");
+                    BaseDirProvider.basePath = path.join(process.env.HOME!, ".config", "tanlockmanager");
                     break;
             }
         }

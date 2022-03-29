@@ -53,4 +53,4 @@ export default class DataRoute implements IRoute {
         })*/
         ;
     }
-};
+}

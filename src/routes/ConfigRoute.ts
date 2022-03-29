@@ -44,9 +44,9 @@ export default class ConfigRoute implements IRoute {
                     return;
                 }
                 if (user.hasPermission(Permission.READ_SYSTEM_CONFIG)) {
-                    let plugins: string[] = [];
+                    const plugins: string[] = [];
                     if (server.pluginHandler) {
-                        let pluginHolder = server.pluginHandler.getPluginHolder();
+                        const pluginHolder = server.pluginHandler.getPluginHolder();
                         pluginHolder.authPlugins.forEach(authPlugin => {
                             plugins.push(`authPlugin_${authPlugin.name()}`)
                         });
@@ -134,4 +134,4 @@ export default class ConfigRoute implements IRoute {
                 }
             });
     }
-};
+}

@@ -26,7 +26,7 @@ export default class StandardProvisionHandler {
                 await apiHelper.createUser(lock, "manager");
                 await apiHelper.createUser(lock, "service");
             }catch (e){
-                let axError = e as AxiosError
+                const axError = e as AxiosError
                 console.error("Provision Error", axError.config.url, axError.code);
 
                 LockStore.getInstance()

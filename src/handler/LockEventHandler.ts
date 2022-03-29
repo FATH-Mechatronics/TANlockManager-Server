@@ -15,9 +15,6 @@ export default class LockEventHandler {
     private static instance: LockEventHandler | null = null;
     private config: PluginConfig;
 
-    private constructor() {
-    }
-
     public static getInstance(): LockEventHandler {
         if (this.instance === null) {
             this.instance = new LockEventHandler();
@@ -29,7 +26,7 @@ export default class LockEventHandler {
         this.config = config;
     }
 
-    public handle(event: EventHandlerOptions, body: any, req, eventFilled: boolean = false) {
+    public handle(event: EventHandlerOptions, body: any, req, eventFilled = false) {
         return new Promise<EventHandlerOptions>((resolve, reject) => {
             let evalInfoPage = false;
             if (event.tanlock === null) {
@@ -139,10 +136,9 @@ export default class LockEventHandler {
                     if (updated != null && updated !== false) {
                         event.tanlock = (updated as TanLock);
                     }
-                default:
-                    event.tanlock = lockstore.updateLockState(event.tanlock, event.event, true);
                     break;
             }
+            event.tanlock = lockstore.updateLockState(event.tanlock, event.event, true);
 
             if (event.event !== TanLockEvent.HEARTBEAT) {
                 this.config.server.emitWS("logEvent", logstore.addLog(event));
@@ -216,7 +212,7 @@ export default class LockEventHandler {
                     lock.door_2 = response.data.external.ext_12;
 
                     // PATCH LOCK
-                    let newLock = lockstore.patchLock(lock.id, lock);
+                    const newLock = lockstore.patchLock(lock.id, lock);
                     if (newLock == null || newLock === false) {
                         resolve(lock);
                         return;
@@ -231,7 +227,7 @@ export default class LockEventHandler {
                      */
                     //HAS AUTHED USER
                     if (response.data.user !== "") {
-                        let logPayload = `👮 AuthedUser: ${response.data.user}`;
+                        const logPayload = `👮 AuthedUser: ${response.data.user}`;
                         this.config.server.emitWS("logEvent", logstore.addLog(lock, logPayload));
 
                         //CABINET LOGGING

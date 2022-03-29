@@ -2,11 +2,11 @@ import Cabinet from "./Cabinet";
 import Permission from "./Permission";
 
 export default class Row {
-    public name: string = "dummy";
+    public name = "dummy";
     public id: number;
     public cage_id: number;
     public order: number;
-    public gradient: string = "transparent";
+    public gradient = "transparent";
     constructor(identity: any = null) {
         this.name = "New Row";
         this.id = -1;

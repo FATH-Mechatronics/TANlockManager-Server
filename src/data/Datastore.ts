@@ -1,14 +1,10 @@
-import TanLock from "../model/TanLock";
-import Cage from "../model/Cage";
-import Cabinet from "../model/Cabinet";
 import BaseDirProvider from "./BaseDirProvider";
+import {execSync} from "child_process";
 
-
-const fs = require('fs');
-const execSync = require('child_process').execSync;
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const path = require('path');
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 export default class DataStore {
     private static _initedDir = false;
@@ -17,12 +13,16 @@ export default class DataStore {
             case "win32":
                 try {
                     execSync(`mkdir "${path}"`);
-                } catch (e) { }
+                } catch (e) {
+                    //ignore
+                }
                 break;
             case "linux":
                 try {
                     execSync(`mkdir -p "${path}"`);
-                } catch (e) { }
+                } catch (e) {
+                    //ignore
+                }
                 break;
         }
     }
@@ -71,7 +71,7 @@ export default class DataStore {
             //Version 2
             { name: "openDefaultMethod", value: "prepareopen"},
             { name: "openDefaultPin", value: ""}
-        ],
+        ]
         // cages: [], Removed in V2
         // cabinets: [] Removed in V2
     };
@@ -91,11 +91,11 @@ export default class DataStore {
         if (current < DataStore.defaults.version) {
             console.warn(`Database need Patch from ${current} to ${DataStore.defaults.version}`);
             if(current < 2){ // Patches for Version 2
-                let openDefaultMethod = DataStore.defaults.config.find(c => c.name === "openDefaultMethod")
+                const openDefaultMethod = DataStore.defaults.config.find(c => c.name === "openDefaultMethod")
                 if(openDefaultMethod) {
                     this.setConfig(openDefaultMethod.name, openDefaultMethod.value)
                 }
-                let openDefaultPin = DataStore.defaults.config.find(c => c.name === "openDefaultPin")
+                const openDefaultPin = DataStore.defaults.config.find(c => c.name === "openDefaultPin")
                 if(openDefaultPin) {
                     this.setConfig(openDefaultPin.name, openDefaultPin.value)
                 }
@@ -163,7 +163,5 @@ export default class DataStore {
 
         const adapter = new FileSync(`${basePath}/db.json`);
         this.db = low(adapter);
-        this.db.defaults(DataStore.defaults)
-            .write();
     }
 }

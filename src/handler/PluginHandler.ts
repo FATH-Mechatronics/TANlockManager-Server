@@ -20,7 +20,7 @@ class PluginHolder {
     sensorPlugins: ISensorPlugin[] = [];
 
     getPluginByName(pluginName: string) {
-        let splitted: string[] = pluginName.split("_", 2);
+        const splitted: string[] = pluginName.split("_", 2);
         switch (splitted[0]) {
             case "authPlugin":
                 return this.authPlugins.find(p => p.name() === splitted[1]);
@@ -45,28 +45,35 @@ export default class PluginHandler {
         try {
             fs.mkdirSync(pluginPath);
         } catch (error) {
+            //ignore
         }
         let folders: string[] = fs.readdirSync(pluginPath);
         folders = folders.filter(f => fs.statSync(path.join(pluginPath, f)).isDirectory());
         for (const folder of folders) {
             console.log(folder);
+
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const pluginSpec = require(path.join(pluginPath, folder, "package.json"));
             console.log(pluginSpec);
             switch (pluginSpec.pluginType) {
                 case "authPlugin":
-                    let authPlugin: IAuthPlugin = require(path.join(pluginPath, folder));
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                    const authPlugin: IAuthPlugin = require(path.join(pluginPath, folder));
                     this.pluginsHolder.authPlugins.push(authPlugin);
                     break;
                 case "cameraPlugin":
-                    let cameraPlugin: ICameraPlugin = require(path.join(pluginPath, folder));
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                    const cameraPlugin: ICameraPlugin = require(path.join(pluginPath, folder));
                     this.pluginsHolder.cameraPlugins.push(cameraPlugin);
                     break;
                 case "eventPlugin":
-                    let eventPlugin: IEventPlugin = require(path.join(pluginPath, folder));
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                    const eventPlugin: IEventPlugin = require(path.join(pluginPath, folder));
                     this.pluginsHolder.eventPlugins.push(eventPlugin);
                     break;
                 case "sensorPlugin":
-                    let sensorPlugin: ISensorPlugin = require(path.join(pluginPath, folder));
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                    const sensorPlugin: ISensorPlugin = require(path.join(pluginPath, folder));
                     this.pluginsHolder.sensorPlugins.push(sensorPlugin);
                     break;
             }
@@ -113,7 +120,7 @@ export default class PluginHandler {
 
     public availSensors() {
         for (let i = 0; i < this.pluginsHolder.sensorPlugins.length; i++) {
-            const p = this.pluginsHolder.sensorPlugins[i];
+            const p:any = this.pluginsHolder.sensorPlugins[i];
             if (p.getSensors && p.availSensors) {
                 return p.availSensors();
             }

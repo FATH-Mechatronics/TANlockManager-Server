@@ -1,8 +1,9 @@
 import axios from 'axios';
+import RestServer from "./server/RestServer";
 
 axios.defaults.timeout = 30_000;
 
-const expressListener = null;
+const expressListener:any = null;
 let restServer: any = null;
 
 function stopRestServer() {
@@ -12,16 +13,16 @@ function stopRestServer() {
             restServer.stop().then((v) => {
                 console.log(v);
                 console.log("RestCallback ");
-                resolve();
+                resolve(null);
             }).catch((e) => {
                 console.log(e);
                 console.log("RestErrCallback ");
-                resolve();
+                resolve( null);
             });
             console.log("RestStop Send");
         } else {
             console.log("No Rest");
-            resolve();
+            resolve(null);
         }
     });
 }
@@ -30,15 +31,14 @@ function stopExpressServer() {
     return new Promise((resolve, reject) => {
         if (expressListener != null) {
             console.log("Stopping Express");
-            // @ts-ignore
             expressListener.close((v) => {
                 console.log(v);
                 console.log("ExpressCallback Done");
-                resolve();
+                resolve(null);
             });
         } else {
             console.log("No Express");
-            resolve();
+            resolve(null);
         }
     });
 }
@@ -73,7 +73,6 @@ async function start() {
     if (noserver) {
         // launchUI();
     } else {
-        const RestServer = (await import('./server/RestServer')).default;
         restServer = new RestServer();
         restServer.start()
             .then(() => {

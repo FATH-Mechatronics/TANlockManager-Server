@@ -2,7 +2,7 @@ import Role from "./Role";
 import Permission from "./Permission";
 
 export default class User {
-    public user: string = "";
+    public user = "";
     public pass: string | undefined = "";
     public roles: Role[] = [Role.USER_ROLE];
 

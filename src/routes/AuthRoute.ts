@@ -41,12 +41,10 @@ export default class AuthRoute implements IRoute {
                                     return;
                                 }
                                 const accessToken = decoded;
-                                // @ts-ignore
-                                server.jwtHandler.verify(refresh)
+                                server.jwtHandler!.verify(refresh)
                                     .then((decoded: any) => {
                                         if (decoded.vfor === accessToken.jti) {
-                                            // @ts-ignore
-                                            if (server.jwtHandler.removeRefresh(decoded)) {
+                                            if (server.jwtHandler!.removeRefresh(decoded)) {
                                                 const user = userstore.findUserByName(accessToken.user);
                                                 if (user != null && user.hasPermission(Permission.SYSTEM_AUTH)) {
                                                     this.sendNewTokens(server, res, user);
@@ -95,7 +93,7 @@ export default class AuthRoute implements IRoute {
                         if (success) {
                             if (user == null && pHandler.autoCreateUser()) {
                                 console.log("CREATING NEW USER FOR U");
-                                let newUser = new User({
+                                const newUser = new User({
                                     user: username,
                                     roles: pHandler.defaultRoles()
                                 });
@@ -171,4 +169,4 @@ export default class AuthRoute implements IRoute {
             res.sendStatus(500);
         }
     }
-};
+}

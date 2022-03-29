@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "lib": ["ES6"],
         "baseUrl": ".",             //base path
         "outDir": "./dist/",        // path to output directory
         "sourceMap": false,          // allow sourcemap support

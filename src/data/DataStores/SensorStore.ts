@@ -1,10 +1,9 @@
 import DataStore from "../Datastore";
-import Cage from "../../model/Cage";
-import Cabinet from "../../model/Cabinet";
 import TanLock from "../../model/TanLock";
-
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 export default class SensorStore {
     private db;

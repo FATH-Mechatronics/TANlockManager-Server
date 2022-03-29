@@ -65,7 +65,7 @@ export default class TanHandler {
             }
             promise.then(res => {
                 this.tanStore.deleteTan(tan);
-                resolve();
+                resolve(null);
             }).catch(err => {
                 console.error("unable to delete tan from lock", tan);
                 reject();

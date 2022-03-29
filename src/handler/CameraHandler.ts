@@ -22,7 +22,7 @@ interface CameraHandleItem {
 export default class CameraHandler {
     private static instance: CameraHandler | null = null;
 
-    public static BASEDIR: string = "camera";
+    public static BASEDIR = "camera";
 
     private server: RestServer;
     private runningCams: CameraHandleItem[] = [];
@@ -35,9 +35,6 @@ export default class CameraHandler {
 
     public init(config: any) {
         this.server = config.server
-    }
-
-    private constructor() {
     }
 
     public handleEvent(options: EventHandlerOptions) {
@@ -56,7 +53,7 @@ export default class CameraHandler {
                 if (options.tanlock?.useDoor_2==true){
                     isSafeState = isSafeState && options.tanlock.door_2;
                 }
-                let handleUnLocked = options.tanlock?.state === "unlocked" || options.tanlock?.state === "open";
+                const handleUnLocked = options.tanlock?.state === "unlocked" || options.tanlock?.state === "open";
                 isSafeState = isSafeState && !handleUnLocked;
                 if(isSafeState){
                     this.stopCamera(options);
@@ -69,8 +66,7 @@ export default class CameraHandler {
             console.error("No Cam || Cabinet");
             return;
         }
-        // @ts-ignore
-        const index = this.runningCams.findIndex(c => c.tanlock.ip === options.tanlock.ip);
+        const index = this.runningCams.findIndex(c => c.tanlock.ip === options.tanlock!.ip);
         if (index === -1) {
             console.log("Start Camera ", options.cabinet.name, options.tanlock.ip);
             const cam = {
@@ -92,8 +88,7 @@ export default class CameraHandler {
             console.error("No Cam || Cabinet");
             return;
         }
-        // @ts-ignore
-        const index = this.runningCams.findIndex(c => c.tanlock.id === options.tanlock.id);
+        const index = this.runningCams.findIndex(c => c.tanlock.id === options.tanlock!.id);
         if (index >= 0) {
             console.log("Stop Camera ", index, options.cabinet.name, options.tanlock.ip);
             this.runningCams[index].stop = true;
@@ -152,7 +147,9 @@ export default class CameraHandler {
                     } else {
                         console.error(err);
                     }
-                    fs.close(fd, (err) => {});
+                    fs.close(fd, (err) => {
+                        //ignore
+                    });
                 });
             } else {
                 console.error(err);
@@ -234,7 +231,7 @@ export default class CameraHandler {
         return `ts${CameraHandler.leadingZero(date.getHours())}_${CameraHandler.leadingZero(date.getMinutes())}_${date.getTime()}_${state}.jpg`
     }
 
-    public static leadingZero(x: number, base: number = 10) {
+    public static leadingZero(x: number, base = 10) {
         let res = "";
         for (let i = Math.log10(base); i > 0; i--) {
             if (Math.pow(10, i) > x) {

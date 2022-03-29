@@ -23,4 +23,4 @@ export default class LogEvent {
         c.lock = new TanLock(c);
         return c;
     }
-};
+}

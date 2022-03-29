@@ -2,8 +2,8 @@ import Permission from "./Permission";
 
 export default class Cage {
     public id: number;
-    public name: string = "dummy";
-    public color: string = "#FFFFFF";
+    public name = "dummy";
+    public color = "#FFFFFF";
 
     constructor(identity: any = null) {
         this.name = "New CAGE";

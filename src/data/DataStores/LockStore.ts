@@ -1,9 +1,10 @@
 import DataStore from "../Datastore";
 import TanLock from "../../model/TanLock";
 import TanLockEvent from "../../model/TanLockEvent";
-
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 export default class LockStore {
     private db;
@@ -19,7 +20,7 @@ export default class LockStore {
         if (current < LockStore.defaults.version) {
             console.warn(`Database need Patch from ${current} to ${LockStore.defaults.version}`);
             if(current < 2) { // Patches for Version 2
-                let locks: TanLock[] = this.getAllLocks();
+                const locks: TanLock[] = this.getAllLocks();
 
                 locks.forEach((lock:TanLock) => {
                     this.db.get("tanlocks")
@@ -34,7 +35,7 @@ export default class LockStore {
         }
     }
 
-    public updateLockState(lock: TanLock, value: string, isEvent: boolean = false): TanLock {
+    public updateLockState(lock: TanLock, value: string, isEvent = false): TanLock {
         let state = "unknown";
 
         if (isEvent) {
@@ -175,7 +176,6 @@ export default class LockStore {
                     return false;
             }
             Object.keys(options).forEach((key) => {
-                // @ts-ignore
                 foundLock[key] = options[key];
             });
             return new TanLock(this.db.get("tanlocks")

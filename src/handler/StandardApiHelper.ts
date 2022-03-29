@@ -47,7 +47,7 @@ export default class StandardApiHelper {
     }
 
     private static getAuth(lock: TanLock) {
-        let apiKeySegments = lock.apiKey.split("/");
+        const apiKeySegments = lock.apiKey.split("/");
         return {
             username: apiKeySegments[0],
             password: apiKeySegments[1]

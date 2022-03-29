@@ -4,12 +4,16 @@ node_js:
 - lts/*
 - node
 
+jobs:
+  allow_failures:
+    - node_js: node
+
 services:
 - docker
 
 env:
   global:
-  - NODE_DOWNLOAD_URL=https://nodejs.org/dist/v12.16.1/node-v12.16.1-win-x64.zip
+  - NODE_DOWNLOAD_URL=https://nodejs.org/dist/v16.14.2/node-v16.14.2-win-x64.zip
   - NSIS_IMAGE=cs8898/nsis:latest
 
 script:

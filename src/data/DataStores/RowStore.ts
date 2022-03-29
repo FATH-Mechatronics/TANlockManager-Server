@@ -1,9 +1,9 @@
 import DataStore from "../Datastore";
 import Row from "../../model/Row";
-import Cabinet from "../../model/Cabinet";
-
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 export default class RowStore {
     private db;
@@ -57,7 +57,6 @@ export default class RowStore {
         }
         if (foundRow != null) {
             Object.keys(options).forEach((key) => {
-                // @ts-ignore
                 foundRow[key] = options[key];
             });
             return new Row(this.db.get("rows")

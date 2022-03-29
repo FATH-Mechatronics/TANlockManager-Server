@@ -2,7 +2,7 @@ import User from "./User";
 import Role from "./Role";
 
 export default class AuthUser {
-    public user: string = "";
+    public user = "";
     public roles: string[] = []
     public permissions: string[] = [];
 

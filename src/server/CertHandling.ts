@@ -72,7 +72,7 @@ export default class CertHandling {
         return this.generateOrGet("jwt");
     }
 
-    private static generateOrGet(name: string = "cert", subFolder: string = ".", domains: string[] = []) {
+    private static generateOrGet(name = "cert", subFolder = ".", domains: string[] = []) {
         const basePath = BaseDirProvider.getBasePath();
         return new Promise((accept, reject) => {
             this.getCA().then((ca: { key: string, cert: string }) => {

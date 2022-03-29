@@ -1,6 +1,5 @@
 import {Server} from "https";
 import {Application} from "express";
-import * as socketio from "socket.io";
 import express from "express";
 import DataRoute from "../routes/DataRoute";
 import EventRoute from "../routes/EventRoute";
@@ -27,8 +26,11 @@ import LockEventHandler from "../handler/LockEventHandler";
 import StandardApiHelper from "../handler/StandardApiHelper";
 
 // const express = require("express");
-const http = require('httpolyglot');
-const cookieParser = require('cookie-parser');
+import http from "httpolyglot";
+import cookieParser from "cookie-parser";
+import * as SocketIo from "socket.io";
+import socketIoAuth from "socketio-auth";
+
 
 function isLocalhost(ipA) {
     switch (ipA) {
@@ -43,7 +45,7 @@ function isLocalhost(ipA) {
 export default class RestServer {
     app: Application;
     server: Server | undefined;
-    ios: socketio.Server | undefined;
+    ios: SocketIo.Server | undefined;
     port: number;
     host: string;
     jwtHandler: JWTHandler | undefined;
@@ -56,7 +58,7 @@ export default class RestServer {
     axios: AxiosStatic = axios;
     routes: IRoute[];
 
-    public constructor(port: number = 4343, host: string = "0.0.0.0") {
+    public constructor(port = 4343, host = "0.0.0.0") {
         this.port = port;
         this.host = host;
         this.routes = [new EventRoute(), new ConfigRoute(), new DataRoute(), new AuthRoute(), new UiRoute()];
@@ -141,7 +143,7 @@ export default class RestServer {
                     };
                     this.server = http.createServer(certOptions, this.app);
 
-                    this.ios = require('socket.io')(this.server, {
+                    this.ios = new SocketIo.Server(this.server, {
                         cors: {
                             origin: "*",
                             credentials: false,
@@ -171,14 +173,14 @@ export default class RestServer {
                     this.lockEventHandler = LockEventHandler.getInstance();
                     this.lockEventHandler.init(pluginConfig);
                     if (this.server != null) {
-                        this.server.on('error', (e) => {
+                        this.server.on('error', (e:any) => {
                             if (e.code === 'EADDRINUSE') {
                                 reject(e);
                             }
                         });
                         this.server.listen(this.port, this.host, () => {
                             console.log("REST Listening on " + `https://localhost:${this.port}`);
-                            accept();
+                            accept(null);
                         });
                     } else {
                         reject("Cannot Start Server");
@@ -200,10 +202,10 @@ export default class RestServer {
                         this.server.close((e) => {
                             console.log("RESTSERVERCLASS CLOSE");
                             console.log(e);
-                            resolve();
+                            resolve(null);
                         });
                     } else {
-                        resolve();
+                        resolve(null);
                     }
 
                 });
@@ -212,10 +214,10 @@ export default class RestServer {
                     this.server.close((e) => {
                         console.log("RESTSERVERCLASS CLOSE");
                         console.log(e);
-                        resolve();
+                        resolve(null);
                     });
                 } else {
-                    resolve();
+                    resolve(null);
                 }
             }
         });
@@ -224,7 +226,7 @@ export default class RestServer {
     wsclients: any[] = [];
 
     public emitWS(event, data) {
-        let permission: string = "";
+        let permission = "";
         if (data instanceof TanLock) {
             permission = `${data.id}#${Permission.READ_LOCK}`;
         } else if (data instanceof LogEvent) {
@@ -244,7 +246,7 @@ export default class RestServer {
                     permission = `lock_${data.lock_id}#${Permission.READ_LOG}`;
                     break;
                 default:
-                    console.error("CabinetLog Missing PERM DEF FOR TYPE: \'" + data.type + "\'", data);
+                    console.error("CabinetLog Missing PERM DEF FOR TYPE: '" + data.type + "'", data);
             }
         } else if (data.lock_id != null) {
             console.error("WS EVENT MISSING CLASS", data);
@@ -267,7 +269,7 @@ export default class RestServer {
     }
 
     private configureWS() {
-        require("socketio-auth")(this.ios, {
+        socketIoAuth(this.ios, {
             authenticate: (socket, data, callback) => {
                 console.log("AUTH REQUEST ON WS");
                 if (this.jwtHandler) {

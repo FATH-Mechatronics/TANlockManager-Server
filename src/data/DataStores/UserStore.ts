@@ -8,10 +8,11 @@ import CageStore from "./CageStore";
 import Cage from "../../model/Cage";
 import CabinetStore from "./CabinetStore";
 import Cabinet from "../../model/Cabinet";
-
-const low = require('lowdb');
-const bcrypt = require('bcryptjs');
-const FileSync = require('lowdb/adapters/FileSync');
+import bcrypt from "bcryptjs";
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 const SALT_ROUNDS = 10;
 
@@ -60,7 +61,7 @@ export default class UserStore {
         return new User(foundClone);
     }
 
-    public createUser(user: User, createPass: boolean = true): boolean {
+    public createUser(user: User, createPass = true): boolean {
         if (this.findUserByName(user.user) == null) {
             if (createPass) {
                 user.pass = bcrypt.hashSync(user.pass, SALT_ROUNDS);

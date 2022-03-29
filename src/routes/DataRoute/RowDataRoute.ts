@@ -22,7 +22,7 @@ export default class RowDataRoute implements IRoute {
                 }
                 let list;
                 if (req.query.cage !== undefined) {
-                    let cid = Number.parseInt(req.query.cage as string);
+                    const cid = Number.parseInt(req.query.cage as string);
                     list = rowstore.getRowsOfCage(cid);
                 } else {
                     list = rowstore.getRows();
@@ -40,7 +40,7 @@ export default class RowDataRoute implements IRoute {
                     res.status(403).end();
                     return;
                 }
-                let row = rowstore.findRowById(rid);
+                const row = rowstore.findRowById(rid);
                 if (row != null) {
                     res.send(row);
                 } else {

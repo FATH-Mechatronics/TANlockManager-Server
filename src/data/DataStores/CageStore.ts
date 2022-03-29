@@ -1,9 +1,9 @@
 import DataStore from "../Datastore";
 import Cage from "../../model/Cage";
-
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 export default class CageStore {
     private db;
     private static instance: CageStore;
@@ -52,7 +52,6 @@ export default class CageStore {
         }
         if (foundCage != null) {
             Object.keys(options).forEach((key) => {
-                // @ts-ignore
                 foundCage[key] = options[key];
             });
             return new Cage(this.db.get("cages")

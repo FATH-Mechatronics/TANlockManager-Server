@@ -1,20 +1,11 @@
 import DataStore from "../Datastore";
-import User from "../../model/User";
-import Role from "../../model/Role";
 import LockStore from "./LockStore";
-import Permission from "../../model/Permission";
 import TanLock from "../../model/TanLock";
-import CageStore from "./CageStore";
-import Cage from "../../model/Cage";
-import CabinetStore from "./CabinetStore";
-import Cabinet from "../../model/Cabinet";
 import Tan from "../../model/Tan";
-
-const low = require('lowdb');
-const bcrypt = require('bcryptjs');
-const FileSync = require('lowdb/adapters/FileSync');
-
-const SALT_ROUNDS = 10;
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 export default class TanStore {
 

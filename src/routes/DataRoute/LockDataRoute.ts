@@ -147,7 +147,7 @@ export default class LockDataRoute implements IRoute {
                     res.sendStatus(401);
                     return;
                 }
-                let lock = lockstore.findLockById(id);
+                const lock = lockstore.findLockById(id);
                 if (lock !== null) {
                     if (!user.hasPermission(`lock_${id}#${Permission.READ_LOCK}`)) {
                         res.status(403).end();
@@ -184,8 +184,7 @@ export default class LockDataRoute implements IRoute {
                             res.send(response.data);
                         })
                         .catch((reason) => {
-                            // @ts-ignore
-                            lock = lockstore.updateLockState(lock, "error");
+                            lock = lockstore.updateLockState(lock!, "error");
                             server.emitWS("tanlockEvent", lock);
                             server.emitWS("logEvent", logstore.addLog(lock, `❌ fetching log: ${reason.message}`));
                             res.status(500).send({error: reason.message});
@@ -262,7 +261,7 @@ export default class LockDataRoute implements IRoute {
                                 }
                             })
                             .catch((reason) => {
-                                let newLock = lockstore.updateLockState(lock, "error");
+                                const newLock = lockstore.updateLockState(lock, "error");
                                 server.emitWS("tanlockEvent", newLock);
                                 server.emitWS("logEvent", logstore.addLog(newLock, `❌ User: ${user.user}, opening lock: ${reason.message}`));
                                 res.status(500).send({error: reason.message});

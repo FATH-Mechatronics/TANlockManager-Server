@@ -1,10 +1,10 @@
 import DataStore from "../Datastore";
-import Cage from "../../model/Cage";
 import Cabinet from "../../model/Cabinet";
 import TanLock from "../../model/TanLock";
-
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+/*eslint-disable */
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+/*eslint-enable */
 
 export default class CabinetStore {
     private db;
@@ -54,7 +54,6 @@ export default class CabinetStore {
         }
         if (foundCabinet != null) {
             Object.keys(options).forEach((key) => {
-                // @ts-ignore
                 foundCabinet[key] = options[key];
             });
             return new Cabinet(this.db.get("cabinets")

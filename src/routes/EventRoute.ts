@@ -11,7 +11,7 @@ const lockstore: LockStore = LockStore.getInstance();
 
 export default class EventRoute implements IRoute {
     public publicURLs(): string[] {
-        return ["/event/?.*", "/standard\-event/?"];
+        return ["/event/?.*", "/standard-event/?"];
     }
 
     public init(server: RestServer): void {
@@ -39,8 +39,8 @@ export default class EventRoute implements IRoute {
     }
 
     private static handleEvent(req) {
-        let remoteAddress = EventRoute.getRemoteIp(req);
-        let tanlock = lockstore.findLockByIp(remoteAddress);
+        const remoteAddress = EventRoute.getRemoteIp(req);
+        const tanlock = lockstore.findLockByIp(remoteAddress);
         /*if (tanlock) {
             let res = lockstore.patchLock(tanlock.id, {software: "7x2"})
             if (res instanceof TanLock) {
@@ -71,10 +71,10 @@ export default class EventRoute implements IRoute {
     }
 
     private static handleStandardEvent(req) {
-        let remoteAddress = EventRoute.getRemoteIp(req);
+        const remoteAddress = EventRoute.getRemoteIp(req);
         let tanlock = lockstore.findLockByIp(remoteAddress);
         if (tanlock) {
-            let res = lockstore.patchLock(tanlock.id, {software: "standard_0.0.1"})
+            const res = lockstore.patchLock(tanlock.id, {software: "standard_0.0.1"})
             if (res instanceof TanLock) {
                 tanlock = res;
             }
@@ -94,4 +94,4 @@ export default class EventRoute implements IRoute {
 
         LockEventHandler.getInstance().handle(event, req.body, req, true);
     }
-};
+}

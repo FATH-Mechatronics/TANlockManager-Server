@@ -4,6 +4,10 @@ node_js:
 - lts/*
 - node
 
+jobs:
+  allow_failures:
+    - node_js: node
+
 services:
 - docker
 

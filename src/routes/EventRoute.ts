@@ -8,6 +8,7 @@ import TanLock from "../model/TanLock";
 import StandardProvisionHandler from "../handler/StandardProvisionHandler";
 import {Logger} from "log4js";
 import LogProvider from "../logging/LogProvider";
+import TanlockUserAgentHelper, {TanlockUserAgent} from "../helpers/TanlockUserAgentHelper";
 
 const logger: Logger = LogProvider("EventRoute");
 
@@ -74,11 +75,14 @@ export default class EventRoute implements IRoute {
 
     private static handleStandardEvent(req) {
         const userAgent = req.header("User-Agent");
-        logger.debug(userAgent);
+        const tanlockUserAgent: TanlockUserAgent | undefined = TanlockUserAgentHelper.parse(userAgent);
+        if (tanlockUserAgent === undefined) {
+            logger.warn(`Seems somebody else triggered: ${userAgent}`);
+        }
         const remoteAddress = EventRoute.getRemoteIp(req);
         let tanlock = lockstore.findLockByIp(remoteAddress);
         if (tanlock) {
-            const res = lockstore.patchLock(tanlock.id, {software: "standard_0.0.1"})
+            const res = lockstore.patchLock(tanlock.id, {software: `standard_${tanlockUserAgent!.version}_${tanlockUserAgent!.build}`})
             if (res instanceof TanLock) {
                 tanlock = res;
             }
@@ -90,7 +94,7 @@ export default class EventRoute implements IRoute {
 
         const evntBody = req.body;
         const eventHandler = TanLockEvent.STD_EVENTS_ENUM[evntBody.event];
-        if (eventHandler === undefined){
+        if (eventHandler === undefined) {
             logger.warn(`No EventHandler found for Event ${evntBody.event}`);
             return;
         }

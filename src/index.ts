@@ -89,7 +89,7 @@ async function start() {
             })
             .catch(err => {
                 if (err.code === 'EADDRINUSE') {
-                    logger.log("Switch To Client Mode");
+                    logger.warn("Switch To Client Mode");
                     // launchUI();
                 }
                 logger.error(err);

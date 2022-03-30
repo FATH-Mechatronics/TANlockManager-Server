@@ -10,6 +10,7 @@ module.exports = {
     ],
     rules: {
         "comma-dangle": ["warn", "never"],
-        "no-case-declarations": "off"
+        "no-case-declarations": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
     }
 };

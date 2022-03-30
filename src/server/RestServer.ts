@@ -95,7 +95,7 @@ export default class RestServer {
                             if (valid || this.isPublicPath(req.url)) { // || isLocalhost(ip)
                                 next();
                             } else {
-                                logger.log("Not Authed " + req.url + " " + ip);
+                                logger.debug("Not Authed " + req.url + " " + ip);
                                 res.sendStatus(401);
                             }
                         })

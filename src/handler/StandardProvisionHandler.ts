@@ -15,7 +15,7 @@ export default class StandardProvisionHandler {
 
     public async provisionLock(lock: TanLock): Promise<void> {
         console.log("Provision Lock", lock);
-        if (lock.software === "standard_0.0.1" && !lock.provisioned) {
+        if (lock.software.startsWith("standard_") && !lock.provisioned) {
             LockStore.getInstance()
                 .patchLock(lock.id, {provisioned: true});
             console.log("Really Provisioning");

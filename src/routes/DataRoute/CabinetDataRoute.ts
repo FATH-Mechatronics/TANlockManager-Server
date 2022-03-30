@@ -6,7 +6,7 @@ import CabinetStore from "../../data/DataStores/CabinetStore";
 import CameraHandler from "../../handler/CameraHandler";
 import LockStore from "../../data/DataStores/LockStore";
 import {Logger} from "log4js";
-import LogProvider from "../../Logging/LogProvider";
+import LogProvider from "../../logging/LogProvider";
 
 const logger:Logger = LogProvider("CabinetDataRoute");
 

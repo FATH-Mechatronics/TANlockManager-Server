@@ -7,7 +7,7 @@ import CabinetLogEntry from "../model/CabinetLogEntry";
 import ExtendedLoggerType from "../model/ExtendedLoggerType";
 import PluginConfig from "../model/PluginConfig";
 import {Logger} from "log4js";
-import LogProvider from "../Logging/LogProvider";
+import LogProvider from "../logging/LogProvider";
 
 const logger:Logger = LogProvider("SensorFetch")
 

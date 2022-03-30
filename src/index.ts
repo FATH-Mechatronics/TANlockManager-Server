@@ -2,7 +2,7 @@ import axios from 'axios';
 import RestServer from "./server/RestServer";
 
 import {Logger} from "log4js";
-import LogProvider from "./Logging/LogProvider";
+import LogProvider from "./logging/LogProvider";
 const logger:Logger = LogProvider("main")
 
 axios.defaults.timeout = 30_000;

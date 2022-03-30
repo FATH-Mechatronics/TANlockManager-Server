@@ -4,7 +4,7 @@ import IRoute from "./IRoute";
 import Permission from "../model/Permission";
 import IBasePlugin from "../handler/pluginInterfaces/IBasePlugin";
 import {Logger} from "log4js";
-import LogProvider from "../Logging/LogProvider";
+import LogProvider from "../logging/LogProvider";
 
 
 const logger: Logger = LogProvider("ConfigRoute");

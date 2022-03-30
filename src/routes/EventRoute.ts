@@ -7,7 +7,7 @@ import LockEventHandler from "../handler/LockEventHandler";
 import TanLock from "../model/TanLock";
 import StandardProvisionHandler from "../handler/StandardProvisionHandler";
 import {Logger} from "log4js";
-import LogProvider from "../Logging/LogProvider";
+import LogProvider from "../logging/LogProvider";
 
 const logger: Logger = LogProvider("EventRoute");
 

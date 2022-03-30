@@ -10,7 +10,7 @@ import ICameraPlugin from "./pluginInterfaces/ICameraPlugin";
 import IEventPlugin from "./pluginInterfaces/IEventPlugin";
 import ISensorPlugin from "./pluginInterfaces/ISensorPlugin";
 import PluginConfig from "../model/PluginConfig";
-import LogProvider from "../Logging/LogProvider";
+import LogProvider from "../logging/LogProvider";
 import {Logger} from "log4js";
 
 const logger: Logger = LogProvider("PluginHandler");

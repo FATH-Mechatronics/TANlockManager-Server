@@ -3,7 +3,7 @@ import CertHandling from "./CertHandling";
 import {v1 as uuid } from "uuid";
 import AuthUser from "../model/AuthUser";
 import {Logger} from "log4js";
-import LogProvider from "../Logging/LogProvider";
+import LogProvider from "../logging/LogProvider";
 
 const logger: Logger = LogProvider("JWT Handler")
 

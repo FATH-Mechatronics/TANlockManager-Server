@@ -30,7 +30,7 @@ import cookieParser from "cookie-parser";
 import * as SocketIo from "socket.io";
 import socketIoAuth from "socketio-auth";
 import {Logger} from "log4js";
-import LogProvider from "../Logging/LogProvider";
+import LogProvider from "../logging/LogProvider";
 
 const logger: Logger = LogProvider("RestServer");
 

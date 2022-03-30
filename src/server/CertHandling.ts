@@ -6,7 +6,7 @@ import * as path from 'path';
 import TanLock from '../model/TanLock';
 import BaseDirProvider from '../data/BaseDirProvider';
 import {Logger} from "log4js";
-import LogProvider from "../Logging/LogProvider";
+import LogProvider from "../logging/LogProvider";
 
 const logger: Logger = LogProvider("CertHandling");
 

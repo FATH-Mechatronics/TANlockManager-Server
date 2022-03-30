@@ -6,6 +6,10 @@ import LockStore from "../data/DataStores/LockStore";
 import LockEventHandler from "../handler/LockEventHandler";
 import TanLock from "../model/TanLock";
 import StandardProvisionHandler from "../handler/StandardProvisionHandler";
+import {Logger} from "log4js";
+import LogProvider from "../Logging/LogProvider";
+
+const logger: Logger = LogProvider("EventRoute");
 
 const lockstore: LockStore = LockStore.getInstance();
 
@@ -62,15 +66,15 @@ export default class EventRoute implements IRoute {
             }
         }
 
-        if (process.env.VERBOSE == "true") {
-            console.log("New Set EventID is", event.eventId);
-            console.log(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
-        }
+        logger.debug("New Set EventID is", event.eventId);
+        logger.debug(new Date().toLocaleTimeString() + " " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
 
         LockEventHandler.getInstance().handle(event, req.body, req);
     }
 
     private static handleStandardEvent(req) {
+        const userAgent = req.header("User-Agent");
+        logger.debug(userAgent);
         const remoteAddress = EventRoute.getRemoteIp(req);
         let tanlock = lockstore.findLockByIp(remoteAddress);
         if (tanlock) {
@@ -86,11 +90,15 @@ export default class EventRoute implements IRoute {
 
         const evntBody = req.body;
         const eventHandler = TanLockEvent.STD_EVENTS_ENUM[evntBody.event];
+        if (eventHandler === undefined){
+            logger.warn(`No EventHandler found for Event ${evntBody.event}`);
+            return;
+        }
 
         event.event = eventHandler(evntBody.data);
 
-        if (process.env.VERBOSE == "true")
-            console.log(new Date().toLocaleTimeString() + " [STANDARD] " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
+
+        logger.debug(new Date().toLocaleTimeString() + " [STANDARD] " + req.method + "  " + req.url + "  " + JSON.stringify(req.query));
 
         LockEventHandler.getInstance().handle(event, req.body, req, true);
     }

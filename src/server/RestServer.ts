@@ -1,6 +1,5 @@
 import {Server} from "https";
-import {Application} from "express";
-import express from "express";
+import express, {Application} from "express";
 import DataRoute from "../routes/DataRoute";
 import EventRoute from "../routes/EventRoute";
 import ConfigRoute from "../routes/ConfigRoute";
@@ -30,6 +29,10 @@ import http from "httpolyglot";
 import cookieParser from "cookie-parser";
 import * as SocketIo from "socket.io";
 import socketIoAuth from "socketio-auth";
+import {Logger} from "log4js";
+import LogProvider from "../Logging/LogProvider";
+
+const logger: Logger = LogProvider("RestServer");
 
 
 function isLocalhost(ipA) {
@@ -92,12 +95,12 @@ export default class RestServer {
                             if (valid || this.isPublicPath(req.url)) { // || isLocalhost(ip)
                                 next();
                             } else {
-                                console.log("Not Authed " + req.url + " " + ip);
+                                logger.log("Not Authed " + req.url + " " + ip);
                                 res.sendStatus(401);
                             }
                         })
                         .catch(err => {
-                            console.error(err);
+                            logger.error(err);
                             res.sendStatus(401);
                         });
                 } else {
@@ -130,12 +133,12 @@ export default class RestServer {
 
     public start() {
         return new Promise((accept, reject) => {
-            console.log("Fetching CERTS");
+            logger.debug("Fetching CERTS");
             CertHandling.getCert()
                 .then((certs: any) => {
                     const ca = certs.ca;
                     const cert = certs.cert;
-                    console.log("GOT CERTS");
+                    logger.debug("GOT CERTS");
                     const certOptions = {
                         cert: cert.cert,
                         key: cert.key,
@@ -153,7 +156,7 @@ export default class RestServer {
                     this.configureWS();
 
                     if (this.ios == undefined) {
-                        console.error("No Way To Instatiate WebSocket")
+                        logger.error("No Way To Instantiate WebSocket")
                         return;
                     }
 
@@ -173,13 +176,13 @@ export default class RestServer {
                     this.lockEventHandler = LockEventHandler.getInstance();
                     this.lockEventHandler.init(pluginConfig);
                     if (this.server != null) {
-                        this.server.on('error', (e:any) => {
+                        this.server.on('error', (e: any) => {
                             if (e.code === 'EADDRINUSE') {
                                 reject(e);
                             }
                         });
                         this.server.listen(this.port, this.host, () => {
-                            console.log("REST Listening on " + `https://localhost:${this.port}`);
+                            logger.info("REST Listening on " + `https://localhost:${this.port}`);
                             accept(null);
                         });
                     } else {
@@ -187,7 +190,7 @@ export default class RestServer {
                     }
                 })
                 .catch(err => {
-                    // console.error(err);
+                    // logger.error(err);
                     reject(err);
                 });
         });
@@ -195,13 +198,15 @@ export default class RestServer {
 
     stop() {
         return new Promise((resolve, reject) => {
-            console.log("RESTSRVCLASS PROMISE");
+            logger.debug("RESTSRVCLASS PROMISE");
             if (this.ios != null) {
                 this.ios.close(() => {
                     if (this.server != null) {
                         this.server.close((e) => {
-                            console.log("RESTSERVERCLASS CLOSE");
-                            console.log(e);
+                            logger.info("RESTSERVERCLASS CLOSE");
+                            if (e) {
+                                logger.error(e);
+                            }
                             resolve(null);
                         });
                     } else {
@@ -212,8 +217,10 @@ export default class RestServer {
             } else {
                 if (this.server != null) {
                     this.server.close((e) => {
-                        console.log("RESTSERVERCLASS CLOSE");
-                        console.log(e);
+                        logger.info("RESTSERVERCLASS CLOSE");
+                        if (e) {
+                            logger.error(e);
+                        }
                         resolve(null);
                     });
                 } else {
@@ -246,18 +253,18 @@ export default class RestServer {
                     permission = `lock_${data.lock_id}#${Permission.READ_LOG}`;
                     break;
                 default:
-                    console.error("CabinetLog Missing PERM DEF FOR TYPE: '" + data.type + "'", data);
+                    logger.error("CabinetLog Missing PERM DEF FOR TYPE: '" + data.type + "'", data);
             }
         } else if (data.lock_id != null) {
-            console.error("WS EVENT MISSING CLASS", data);
+            logger.error("WS EVENT MISSING CLASS", data);
             permission = `lock_${data.lock_id}#${Permission.READ_LOG}`;
         } else if (data.tanlock.id != null) {
-            console.error("WS EVENT MISSING CLASS", data);
+            logger.error("WS EVENT MISSING CLASS", data);
             permission = `lock_${data.tanlock.id}#${Permission.READ_LOCK}`;
         }
 
         if (permission.length == 0) {
-            console.error("WS EVENT MISSING PERM", data);
+            logger.error("WS EVENT MISSING PERM", data);
         }
 
         this.wsclients.forEach(c => {
@@ -271,14 +278,14 @@ export default class RestServer {
     private configureWS() {
         socketIoAuth(this.ios, {
             authenticate: (socket, data, callback) => {
-                console.log("AUTH REQUEST ON WS");
+                logger.debug("AUTH REQUEST ON WS");
                 if (this.jwtHandler) {
                     this.jwtHandler.verify(data.token)
                         .then((decoded: any) => {
                             socket.user = new AuthUser(decoded);
                             this.wsclients.push(socket);
                             callback(null, true);
-                            console.log("AUTHED on WS");
+                            logger.debug("AUTHED on WS");
                         })
                         .catch(err => {
                             callback(new Error("SocketAuth Token Invalid"));
@@ -288,14 +295,14 @@ export default class RestServer {
                 }
             },
             disconnect: (socket) => {
-                console.log("Client Disconnected");
+                logger.debug("Client Disconnected");
                 if (socket.user !== undefined) {
                     const index = this.wsclients.findIndex(i => i.user.jti == socket.user.jti);
                     if (index >= 0) {
                         this.wsclients.splice(index);
-                        console.log("REMOVED USER " + index);
+                        logger.debug("REMOVED USER " + index);
                     } else {
-                        console.log("NO USER FOUND WITH TOKEN");
+                        logger.warn("NO USER FOUND WITH TOKEN");
                     }
                 }
             }

@@ -5,6 +5,10 @@ import * as path from 'path';
 
 import TanLock from '../model/TanLock';
 import BaseDirProvider from '../data/BaseDirProvider';
+import {Logger} from "log4js";
+import LogProvider from "../Logging/LogProvider";
+
+const logger: Logger = LogProvider("CertHandling");
 
 export default class CertHandling {
     public static getCA() {
@@ -81,7 +85,7 @@ export default class CertHandling {
                         if (domains.length === 0) {
                             domains = ['127.0.0.1', 'localhost', ip.address()];
                         }
-                        console.log(`Creating "${name}" Keys for ${domains}`);
+                        logger.info(`Creating "${name}" Keys for ${domains}`);
                         mkcert.createCert({
                             domains,
                             validityDays: 365,

@@ -3,7 +3,11 @@ import DataStore from "../data/Datastore";
 import IRoute from "./IRoute";
 import Permission from "../model/Permission";
 import IBasePlugin from "../handler/pluginInterfaces/IBasePlugin";
+import {Logger} from "log4js";
+import LogProvider from "../Logging/LogProvider";
 
+
+const logger: Logger = LogProvider("ConfigRoute");
 const datastore: DataStore = DataStore.getInstance();
 
 export default class ConfigRoute implements IRoute {
@@ -123,7 +127,7 @@ export default class ConfigRoute implements IRoute {
                         plugin = server.pluginHandler.getPluginHolder().getPluginByName(pluginName);
                     }
                     if (plugin !== undefined) {
-                        console.log("NEW CONF: ", req.body);
+                        logger.debug("NEW CONF: ", req.body);
                         plugin.writeConfig(req.body);
                         res.send("ok").end();
                     } else {

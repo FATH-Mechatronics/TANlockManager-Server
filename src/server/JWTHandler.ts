@@ -2,6 +2,10 @@ import * as jwt from "jsonwebtoken";
 import CertHandling from "./CertHandling";
 import {v1 as uuid } from "uuid";
 import AuthUser from "../model/AuthUser";
+import {Logger} from "log4js";
+import LogProvider from "../Logging/LogProvider";
+
+const logger: Logger = LogProvider("JWT Handler")
 
 export default class JWTHandler {
     private static instance: JWTHandler | null = null;
@@ -12,7 +16,7 @@ export default class JWTHandler {
     private constructor() {
         CertHandling.getJWT().then((certs) => {
             this.pki = certs;
-            console.log("JWTHandler Set PKI")
+            logger.debug("JWTHandler Set PKI")
         });
     }
 
@@ -99,7 +103,7 @@ export default class JWTHandler {
                             }
                             resolve({valid: false, decoded});
                         } else {
-                            console.error(err);
+                            logger.error(err);
                             reject(err);
                         }
                     });

@@ -1,9 +1,9 @@
 {
   "name": "tanlockmanager-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TANlockManager Server",
   "main": "dist/index.js",
-  "author": "Geek in Business GmbH",
+  "author": "FATH Mechatronics GmbH",
   "license": "unlicenced",
   "private": true,
   "scripts": {
@@ -30,6 +30,7 @@
     "httpolyglot": "^0.1.2",
     "ip": "^1.1.5",
     "jsonwebtoken": "^8.5.1",
+    "log4js": "^6.4.4",
     "lowdb": "^1.0.0",
     "mkcert-geek-fork": "^1.5.0",
     "socket.io": "^4.4.1",

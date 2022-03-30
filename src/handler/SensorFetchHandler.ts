@@ -6,6 +6,10 @@ import SensorStore from "../data/DataStores/SensorStore";
 import CabinetLogEntry from "../model/CabinetLogEntry";
 import ExtendedLoggerType from "../model/ExtendedLoggerType";
 import PluginConfig from "../model/PluginConfig";
+import {Logger} from "log4js";
+import LogProvider from "../Logging/LogProvider";
+
+const logger:Logger = LogProvider("SensorFetch")
 
 const datastore = DataStore.getInstance();
 const lockstore = LockStore.getInstance();
@@ -30,7 +34,7 @@ export default class SensorFetchHandler {
     }
 
     public handle() {
-        console.log("Handle Sensors");
+        logger.debug("Handle Sensors");
         const locks: TanLock[] = lockstore.getLocks();
         SensorFetchHandler.instance.handleRecursive(locks);
     }
@@ -39,7 +43,7 @@ export default class SensorFetchHandler {
         if (locks.length == 0) {
             let tout: number = datastore.getConfig("monitoringPollInterval");
             tout *= 1000;
-            console.log("HandleSensors Poll Interval", tout);
+            logger.debug("HandleSensors Poll Interval", tout);
             SensorFetchHandler.instance.timeout = setTimeout(SensorFetchHandler.getInstance().handle, tout);
         } else {
             const lock = locks.pop();

@@ -1,6 +1,10 @@
 import axios from 'axios';
 import RestServer from "./server/RestServer";
 
+import {Logger} from "log4js";
+import LogProvider from "./Logging/LogProvider";
+const logger:Logger = LogProvider("main")
+
 axios.defaults.timeout = 30_000;
 
 const expressListener:any = null;
@@ -9,19 +13,17 @@ let restServer: any = null;
 function stopRestServer() {
     return new Promise((resolve, reject) => {
         if (restServer !== null) {
-            console.log("Stopping Rest");
+            logger.debug("Stopping Rest");
             restServer.stop().then((v) => {
-                console.log(v);
-                console.log("RestCallback ");
+                logger.debug("RestCallback", v);
                 resolve(null);
             }).catch((e) => {
-                console.log(e);
-                console.log("RestErrCallback ");
+                logger.error("RestErrCallback ", e);
                 resolve( null);
             });
-            console.log("RestStop Send");
+            logger.debug("RestStop Send");
         } else {
-            console.log("No Rest");
+            logger.debug("No Rest");
             resolve(null);
         }
     });
@@ -30,14 +32,13 @@ function stopRestServer() {
 function stopExpressServer() {
     return new Promise((resolve, reject) => {
         if (expressListener != null) {
-            console.log("Stopping Express");
+            logger.debug("Stopping Express");
             expressListener.close((v) => {
-                console.log(v);
-                console.log("ExpressCallback Done");
+                logger.debug("ExpressCallback Done", v);
                 resolve(null);
             });
         } else {
-            console.log("No Express");
+            logger.debug("No Express");
             resolve(null);
         }
     });
@@ -88,12 +89,14 @@ async function start() {
             })
             .catch(err => {
                 if (err.code === 'EADDRINUSE') {
-                    console.log("Switch To Client Mode");
+                    logger.log("Switch To Client Mode");
                     // launchUI();
                 }
-                console.error(err);
+                logger.error(err);
             });
     }
 }
 
-start();
+start().then(r => {
+    logger.info("Server Up and Running");
+});

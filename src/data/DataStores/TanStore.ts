@@ -18,7 +18,6 @@ export default class TanStore {
 
     public static getInstance(): TanStore {
         if (!TanStore.instance) {
-            console.log("GENERATE TAN STORE");
             TanStore.instance = new TanStore();
         }
         return TanStore.instance;

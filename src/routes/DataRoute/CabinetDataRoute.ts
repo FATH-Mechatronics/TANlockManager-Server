@@ -5,6 +5,10 @@ import Permission from "../../model/Permission";
 import CabinetStore from "../../data/DataStores/CabinetStore";
 import CameraHandler from "../../handler/CameraHandler";
 import LockStore from "../../data/DataStores/LockStore";
+import {Logger} from "log4js";
+import LogProvider from "../../Logging/LogProvider";
+
+const logger:Logger = LogProvider("CabinetDataRoute");
 
 const cabinetstore: CabinetStore = CabinetStore.getInstance();
 const lockstore: LockStore = LockStore.getInstance();
@@ -60,7 +64,7 @@ export default class CabinetDataRoute implements IRoute {
                 }
                 const cabinet = cabinetstore.findCabinetById(cid);
                 if (cabinet == null) {
-                    console.log("Cabinet not FOUND...");
+                    logger.debug("Cabinet not FOUND...");
                     res.status(404).end();
                     return;
                 }

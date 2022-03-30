@@ -10,7 +10,10 @@ import ICameraPlugin from "./pluginInterfaces/ICameraPlugin";
 import IEventPlugin from "./pluginInterfaces/IEventPlugin";
 import ISensorPlugin from "./pluginInterfaces/ISensorPlugin";
 import PluginConfig from "../model/PluginConfig";
+import LogProvider from "../Logging/LogProvider";
+import {Logger} from "log4js";
 
+const logger: Logger = LogProvider("PluginHandler");
 const basePath = DataStore.getBasePath();
 
 class PluginHolder {
@@ -50,11 +53,12 @@ export default class PluginHandler {
         let folders: string[] = fs.readdirSync(pluginPath);
         folders = folders.filter(f => fs.statSync(path.join(pluginPath, f)).isDirectory());
         for (const folder of folders) {
-            console.log(folder);
+            logger.debug(folder);
 
             // eslint-disable-next-line @typescript-eslint/no-var-requires
             const pluginSpec = require(path.join(pluginPath, folder, "package.json"));
-            console.log(pluginSpec);
+            logger.info(`Loading Plugin: ${pluginSpec.pluginType}|${pluginSpec.name}`)
+            logger.debug(pluginSpec);
             switch (pluginSpec.pluginType) {
                 case "authPlugin":
                     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -168,7 +172,7 @@ export default class PluginHandler {
                             resolve(data);
                         })
                         .catch(err => {
-                            console.error("getImage: " + err);
+                            logger.error("getImage: " + err);
                             reject(err);
                         });
                     return;
@@ -188,7 +192,7 @@ export default class PluginHandler {
                             resolve(data);
                         })
                         .catch(err => {
-                            console.error("getImageInterval: " + err);
+                            logger.error("getImageInterval: " + err);
                             reject(err);
                         });
                     return;
@@ -208,13 +212,13 @@ export default class PluginHandler {
                             resolve(succes);
                         })
                         .catch(err => {
-                            console.error("authenticate", err);
+                            logger.error("authenticate", err);
                             reject(err);
                         });
                     return;
                 }
             }
-            console.log("No AuthPlugin Available");
+            logger.debug("No AuthPlugin Available");
             reject(new Error("No Auth Plugin"));
         }))
     }

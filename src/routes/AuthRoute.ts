@@ -117,8 +117,10 @@ export default class AuthRoute implements IRoute {
                                 return;
                             }
                         }
-                    }).catch((err) => {
-                        console.log("authCatch", err);
+                    }).catch((err:Error) => {
+                        if (err.message !== "No Auth Plugin") {
+                            console.log("authCatch", err);
+                        }
                         //AUTH LOCAL
                         this.authLocal(username, password, res);
                         return;

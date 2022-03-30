@@ -44,6 +44,14 @@ export default class TanLockEvent {
             const handleState = data[0];
             return handleState ? TanLockEvent.OPENING : TanLockEvent.CLOSING;
         },
+        LAL_LOCKED: (data) => {
+            const lockState = data[0];
+            return lockState ? TanLockEvent.LOCKING : TanLockEvent.UNLOCKING;
+        },
+        LAL_HANDLE: (data) => {
+            const handleState = data[0];
+            return handleState ? TanLockEvent.OPENING : TanLockEvent.CLOSING;
+        },
         EXT_CHANGED: (data) => {
             const id = data[0];
             const state = data[1];

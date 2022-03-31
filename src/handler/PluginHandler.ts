@@ -122,7 +122,8 @@ export default class PluginHandler {
         });
     }
 
-    public availSensors() {
+    //Obsolet
+    /*public availSensors() {
         for (let i = 0; i < this.pluginsHolder.sensorPlugins.length; i++) {
             const p:any = this.pluginsHolder.sensorPlugins[i];
             if (p.getSensors && p.availSensors) {
@@ -131,7 +132,7 @@ export default class PluginHandler {
         }
         // TODO default TANlock
         return [];
-    }
+    }*/
 
     public getSensors(lock: TanLock): Promise<(SensorEntry | SensorEntry[])[]> {
         return new Promise((resolve, reject) => {
@@ -143,8 +144,8 @@ export default class PluginHandler {
                     return;
                 }
             }
-            const sensor: (SensorEntry | SensorEntry[])[] = [];
-            resolve(sensor);
+            //const sensor: (SensorEntry | SensorEntry[])[] = [];
+            reject(new Error("no_plugin"));
         })
     }
 

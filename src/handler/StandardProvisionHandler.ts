@@ -2,6 +2,10 @@ import TanLock from "../model/TanLock";
 import StandardApiHelper from "./StandardApiHelper";
 import LockStore from "../data/DataStores/LockStore";
 import {AxiosError} from "axios";
+import LogProvider from "../logging/LogProvider";
+import {Logger} from "log4js";
+
+const logger: Logger = LogProvider("StandardProvisionHandler");
 
 export default class StandardProvisionHandler {
     private static instance: StandardProvisionHandler;
@@ -14,11 +18,11 @@ export default class StandardProvisionHandler {
     }
 
     public async provisionLock(lock: TanLock): Promise<void> {
-        console.log("Provision Lock", lock);
+        logger.debug("Provision Lock", lock);
         if (lock.software.startsWith("standard_") && !lock.provisioned) {
             LockStore.getInstance()
                 .patchLock(lock.id, {provisioned: true});
-            console.log("Really Provisioning");
+            logger.debug("Really Provisioning");
             const apiHelper = StandardApiHelper.getInstance();
             try {
                 await apiHelper.cleanMediums(lock);
@@ -27,7 +31,7 @@ export default class StandardProvisionHandler {
                 await apiHelper.createUser(lock, "service");
             }catch (e){
                 const axError = e as AxiosError
-                console.error("Provision Error", axError.config.url, axError.code);
+                logger.error("Provision Error", axError);
 
                 LockStore.getInstance()
                     .patchLock(lock.id, {provisioned: false});

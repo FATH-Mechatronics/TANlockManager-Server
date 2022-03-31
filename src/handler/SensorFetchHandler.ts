@@ -8,6 +8,8 @@ import ExtendedLoggerType from "../model/ExtendedLoggerType";
 import PluginConfig from "../model/PluginConfig";
 import {Logger} from "log4js";
 import LogProvider from "../logging/LogProvider";
+import StandardApiHelper from "./StandardApiHelper";
+import SensorEntry from "../model/SensorEntry";
 
 const logger:Logger = LogProvider("SensorFetch")
 
@@ -39,6 +41,23 @@ export default class SensorFetchHandler {
         SensorFetchHandler.instance.handleRecursive(locks);
     }
 
+    private sensorUpdater(locks:TanLock[], lockI: TanLock) {
+        return (sensors: SensorEntry[]) => {
+            sensorstore.setSensors(lockI, sensors);
+            const cabinetLog: CabinetLogEntry = new CabinetLogEntry(
+                {
+                    lock_id: lockI.id,
+                    time: (new Date()).getTime(),
+                    type: ExtendedLoggerType.TYPESENSORUPDATE,
+                    lock_name: lockI.name,
+                    value: sensors
+                }
+            );
+            this.server.emitWS("sensorUpdate", cabinetLog);
+            SensorFetchHandler.instance.handleRecursive(locks);
+        }
+    }
+
     public handleRecursive(locks: TanLock[]) {
         if (locks.length == 0) {
             let tout: number = datastore.getConfig("monitoringPollInterval");
@@ -49,20 +68,13 @@ export default class SensorFetchHandler {
             const lock = locks.pop();
             if (this.server.pluginHandler && lock) {
                 const lockI = lock; // Wrap against a TANLock Entity because of linting issues
-                this.server.pluginHandler.getSensors(lockI).then((sensors: any[]) => {
-                    sensorstore.setSensors(lockI, sensors);
-                    const cabinetLog: CabinetLogEntry = new CabinetLogEntry(
-                        {
-                            lock_id: lockI.id,
-                            time: (new Date()).getTime(),
-                            type: ExtendedLoggerType.TYPESENSORUPDATE,
-                            lock_name: lockI.name,
-                            value: sensors
+                this.server.pluginHandler.getSensors(lockI).then(this.sensorUpdater(locks, lockI))
+                    .catch((error: Error)=>{
+                        if (error.message === "no_plugin"){
+                            StandardApiHelper.getInstance().getSensors(lockI)
+                                .then(this.sensorUpdater(locks, lockI));
                         }
-                    );
-                    this.server.emitWS("sensorUpdate", cabinetLog);
-                    SensorFetchHandler.instance.handleRecursive(locks);
-                });
+                    });
                 return;
             } else {
                 SensorFetchHandler.instance.handleRecursive(locks);

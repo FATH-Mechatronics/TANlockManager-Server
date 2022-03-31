@@ -163,5 +163,7 @@ export default class DataStore {
 
         const adapter = new FileSync(`${basePath}/db.json`);
         this.db = low(adapter);
+        this.db.defaults(DataStore.defaults)
+            .write();
     }
 }

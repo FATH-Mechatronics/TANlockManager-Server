@@ -13,6 +13,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "@types/pkginfo": "^0.4.0",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
     "eslint": "^8.12.0",
@@ -33,6 +34,7 @@
     "log4js": "^6.4.4",
     "lowdb": "^1.0.0",
     "mkcert-geek-fork": "^1.5.0",
+    "pkginfo": "^0.4.1",
     "socket.io": "^4.4.1",
     "socketio-auth": "^0.1.1",
     "uuid": "^8.3.2"

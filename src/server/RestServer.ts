@@ -31,6 +31,7 @@ import * as SocketIo from "socket.io";
 import socketIoAuth from "socketio-auth";
 import {Logger} from "log4js";
 import LogProvider from "../logging/LogProvider";
+import StatusRoute from "../routes/StatusRoute";
 
 const logger: Logger = LogProvider("RestServer");
 
@@ -64,7 +65,7 @@ export default class RestServer {
     public constructor(port = 4343, host = "0.0.0.0") {
         this.port = port;
         this.host = host;
-        this.routes = [new EventRoute(), new ConfigRoute(), new DataRoute(), new AuthRoute(), new UiRoute()];
+        this.routes = [new EventRoute(), new ConfigRoute(), new DataRoute(), new AuthRoute(), new UiRoute(), new StatusRoute()];
         this.app = express();
         this.app.use(express.json());
         this.app.use(cookieParser());

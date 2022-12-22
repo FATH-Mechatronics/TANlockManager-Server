@@ -30,7 +30,7 @@
     "express": "^4.17.3",
     "httpolyglot": "^0.1.2",
     "ip": "^1.1.5",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "log4js": "^6.4.4",
     "lowdb": "^1.0.0",
     "mkcert-geek-fork": "^1.5.0",

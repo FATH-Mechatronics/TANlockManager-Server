@@ -7,6 +7,9 @@
 ## Build and Run
 
 ```bash
+# Init 
+$ yarn
+
 # Build TypeScript
 $ yarn build
 
